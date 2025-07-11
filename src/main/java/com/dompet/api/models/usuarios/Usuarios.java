@@ -25,5 +25,13 @@ public class Usuarios {
 
     @Embedded
     private Endereco endereco;
+
+    public Usuarios(UsuariosDto data){
+        this.nome = data.nome();
+        this.email = data.email();
+        this.telefone = data.telefone();
+        this.endereco = data.endereco();
+    }
+
  }
 
