@@ -2,7 +2,7 @@ package com.dompet.api.models.pedidos;
 import java.util.List;
 
 import com.dompet.api.models.endereco.Endereco;
-import com.dompet.api.models.itemPedido.ItemPedido;
+import com.dompet.api.models.itempedido.ItemPedido;
 import com.dompet.api.models.pedidos.enums.*;
 import com.dompet.api.models.usuarios.Usuarios;
 

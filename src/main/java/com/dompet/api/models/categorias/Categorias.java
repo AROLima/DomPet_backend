@@ -20,6 +20,7 @@ public class Categorias {
     private Long id;
 
     private String nome;
+    @OneToMany
     private List<Produtos> produtos;
 
 }

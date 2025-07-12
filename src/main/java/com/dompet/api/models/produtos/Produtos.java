@@ -12,6 +12,8 @@ import lombok.*;
 
 public class Produtos {
     
+ 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,7 +24,15 @@ public class Produtos {
     private Integer estoque;
     private String imagemUrl;
     
-
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")
     private Categorias categoria;
 
+    public Produtos(ProdutosDto dados){
+        this.nome = dados.nome();
+        this.descricao = dados.descricao();
+        this.preco = dados.preco();
+        this.estoque = dados.estoque();
+        this.imagemUrl = dados.imagemUrl();
+    }
 }

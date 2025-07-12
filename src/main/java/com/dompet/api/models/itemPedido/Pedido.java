@@ -1,4 +1,4 @@
-package com.dompet.api.models.itemPedido;
+package com.dompet.api.models.itempedido;
 
 public class Pedido {
 
