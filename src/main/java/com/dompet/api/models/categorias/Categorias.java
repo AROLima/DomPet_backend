@@ -20,7 +20,12 @@ public class Categorias {
     private Long id;
 
     private String nome;
-    @OneToMany
+    @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL)
     private List<Produtos> produtos;
 
+
+    public Categorias(CategoriasDto dados) {
+        this.nome = dados.nome();
+
+    }
 }

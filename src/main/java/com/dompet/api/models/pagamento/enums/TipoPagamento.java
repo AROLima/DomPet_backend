@@ -1,4 +1,4 @@
-package com.dompet.api.models.pedidos.enums;
+package com.dompet.api.models.pagamento.enums;
 
 public enum TipoPagamento {
     CARTAO_CREDITO,

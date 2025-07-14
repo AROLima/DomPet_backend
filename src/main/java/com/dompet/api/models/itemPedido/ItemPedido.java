@@ -2,6 +2,7 @@ package com.dompet.api.models.itempedido;
 import jakarta.persistence.*;
 import lombok.*;
 
+import com.dompet.api.models.pedidos.Pedidos;
 import com.dompet.api.models.produtos.Produtos; 
 
 /**
@@ -23,9 +24,11 @@ public class ItemPedido {
     private Integer quantidade;
     private double precoUnitario;
 
-    
+    @ManyToOne
+    @JoinColumn(name = "produto_id", nullable = false)
     private Produtos produto;
 
-
-    private Pedido pedido;
+    @ManyToOne
+    @JoinColumn(name = "pedido_id", nullable = false)
+    private Pedidos pedido;
 }
