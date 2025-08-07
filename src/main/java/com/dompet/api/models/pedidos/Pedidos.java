@@ -40,7 +40,6 @@ public class Pedidos {
     public Pedidos(PedidosDto data) {
         this.status = StatusPedido.AGUARDANDO_PAGAMENTO;
         this.enderecoEntrega = data.enderecoEntrega(); 
-        // Assuming you will set the address later
-        // You might want to set the usuario and itens based on your application logic
+
     }
 }
