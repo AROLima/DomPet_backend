@@ -5,9 +5,6 @@ import lombok.*;
 import com.dompet.api.models.pedidos.Pedidos;
 import com.dompet.api.models.produtos.Produtos; 
 
-/**
-Classe que representa um item de pedido.
- */
 @Entity
 @Getter
 @Setter

@@ -1,6 +1,5 @@
 package com.dompet.api.models.produtos;
 
-import com.dompet.api.models.categorias.Categorias;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,9 +23,6 @@ public class Produtos {
     private Integer estoque;
     private String imagemUrl;
     
-    @ManyToOne
-    @JoinColumn(name = "categoria_id")
-    private Categorias categoria;
 
     public Produtos(ProdutosDto dados){
         this.nome = dados.nome();

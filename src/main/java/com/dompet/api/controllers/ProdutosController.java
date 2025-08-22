@@ -1,5 +1,7 @@
 package com.dompet.api.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,5 +22,11 @@ public class ProdutosController {
     public void cadastrarProduto(@RequestBody ProdutosDto dados){
         repository.save(new Produtos(dados));
     }
+
+    @GetMapping
+    public List<Produtos> listarProdutos() {
+        return repository.findAll();
+    }
+    
 
 }

@@ -25,17 +25,17 @@ public class Pedidos {
     @JoinColumn(name = "usuario_id", nullable = false) 
     private Usuarios usuario;
 
-    
-    
     @Enumerated(EnumType.STRING)
     private StatusPedido status;
-
 
     @Embedded
     private Endereco enderecoEntrega;
     
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL) 
     private List<ItemPedido> itens;
+
+
+
 
     public Pedidos(PedidosDto data) {
         this.status = StatusPedido.AGUARDANDO_PAGAMENTO;
