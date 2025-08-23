@@ -63,9 +63,8 @@ public class Pedidos {
 
 
 //exclusão lógica
-public void setAtivo(boolean ativo) {
-    this.ativo = ativo;
-
+public void excluir() {
+    this.ativo = false;
 }
 
 }
