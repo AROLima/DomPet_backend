@@ -19,7 +19,10 @@ public class Produtos {
     private Long id;
     
     private String nome;
+
+    @Lob
     private String descricao;
+
     private double preco;
     private Integer estoque;
     private String imagemUrl;
@@ -28,9 +31,9 @@ public class Produtos {
     private Categorias categoria;
 
     private Boolean ativo = true;
-    
-    
 
+
+    //DTO
     public Produtos(ProdutosDto dados){
         this.nome = dados.nome();
         this.descricao = dados.descricao();
