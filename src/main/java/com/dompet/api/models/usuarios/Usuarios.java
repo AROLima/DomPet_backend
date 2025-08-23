@@ -21,7 +21,6 @@ public class Usuarios {
     private String nome;
     private String email;
     private String senha;
-    private String telefone;
 
     @Embedded
     private Endereco endereco;
@@ -29,7 +28,7 @@ public class Usuarios {
     public Usuarios(UsuariosDto data){
         this.nome = data.nome();
         this.email = data.email();
-        this.telefone = data.telefone();
+        this.senha = data.senha();
         this.endereco = data.endereco();
     }
 

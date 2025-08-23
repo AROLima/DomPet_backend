@@ -34,12 +34,38 @@ public class Pedidos {
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL) 
     private List<ItemPedido> itens;
 
+    private Boolean ativo = true;
 
 
 
     public Pedidos(PedidosDto data) {
         this.status = StatusPedido.AGUARDANDO_PAGAMENTO;
-        this.enderecoEntrega = data.enderecoEntrega(); 
+        this.enderecoEntrega = data.enderecoEntrega();
+        this.itens = data.itens();
 
     }
+
+
+
+
+    public void atualizarInformacoes(PedidosDto dados) {
+        if (dados.status() != null) {
+            this.status = dados.status();
+        }
+        if (dados.enderecoEntrega() != null) {
+            this.enderecoEntrega = dados.enderecoEntrega();
+        }
+        if (dados.itens() != null) {
+            this.itens = dados.itens();
+        }
+    }
+
+
+
+//exclusão lógica
+public void setAtivo(boolean ativo) {
+    this.ativo = ativo;
+
+}
+
 }

@@ -28,5 +28,21 @@ public class ProdutosController {
         return repository.findAll();
     }
     
+    @PutMapping("/{id}")
+    @Transactional
+    public void atualizarProduto(@PathVariable Long id, @RequestBody ProdutosDto dados) {
+        var produto = repository.getReferenceById(id);
+        produto.atualizarInformacoes(dados);
+    }
+
+    //exclusão logica
+    @DeleteMapping("/{id}")
+    @Transactional
+    public void excluirProduto(@PathVariable Long id) {
+        var produto = repository.getReferenceById(id);
+        produto.setAtivo(false);
+    }
+
+
 
 }

@@ -6,7 +6,9 @@ public record UsuariosDto(
     String nome,
     String email,
     String telefone,
-    Endereco endereco
+    Endereco endereco,
+    String senha
+
 ) {
     
 }
