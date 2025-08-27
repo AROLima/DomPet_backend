@@ -19,6 +19,10 @@ public class Usuarios {
     private String nome;
     private String email;
     private String senha;
+    private Boolean ativo = true;
+
+
+
 
     @Embedded
     private Endereco endereco;

@@ -10,5 +10,7 @@ public record ProdutosDto(
     String imagemUrl,
     Boolean ativo,
     Categorias categoria
+    
+) {
 
-) {}
+}

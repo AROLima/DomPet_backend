@@ -27,9 +27,9 @@ public class Produtos {
     private Integer estoque;
     private String imagemUrl;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private Categorias categoria;
-
+    
     private Boolean ativo = true;
 
 
@@ -40,6 +40,8 @@ public class Produtos {
         this.preco = dados.preco();
         this.estoque = dados.estoque();
         this.imagemUrl = dados.imagemUrl();
+        this.categoria = dados.categoria();
+        this.ativo = dados.ativo();
     }
 
     public void atualizarInformacoes(ProdutosDto dados) {

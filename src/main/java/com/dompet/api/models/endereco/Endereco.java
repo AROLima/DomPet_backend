@@ -3,6 +3,7 @@ package com.dompet.api.models.endereco;
 import jakarta.persistence.*;
 import lombok.*;
 
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -16,5 +17,7 @@ public class Endereco {
     private String cep;
     private String cidade;
     private String complemento;
+
+
 
 }
