@@ -1,8 +1,8 @@
-package com.dompet.api.models.produtos;
+package com.dompet.api.features.produtos.dto;
 
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
-import com.dompet.api.models.categorias.Categorias;
+import com.dompet.api.features.produtos.domain.Categorias;
 
 public record ProdutosDto(
     @NotBlank String nome,

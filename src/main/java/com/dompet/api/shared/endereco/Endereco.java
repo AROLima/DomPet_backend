@@ -1,4 +1,4 @@
-package com.dompet.api.models.endereco;
+package com.dompet.api.shared.endereco;
 
 import jakarta.persistence.*;
 import lombok.*;

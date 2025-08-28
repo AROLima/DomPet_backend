@@ -2,7 +2,7 @@ package com.dompet.api.models.pagamento;
 
 import com.dompet.api.models.pagamento.enums.StatusPagamento;
 import com.dompet.api.models.pagamento.enums.TipoPagamento;
-import com.dompet.api.models.pedidos.Pedidos;
+import com.dompet.api.features.pedidos.domain.Pedidos;
 
 import jakarta.persistence.*;
 import lombok.*;

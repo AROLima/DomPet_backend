@@ -1,4 +1,4 @@
-package com.dompet.api.models.categorias;
+package com.dompet.api.features.produtos.domain;
 
 public enum Categorias {
     RACAO,

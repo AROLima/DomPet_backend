@@ -1,6 +1,7 @@
-package com.dompet.api.models.produtos;
+package com.dompet.api.features.produtos.repo;
 
-import com.dompet.api.models.categorias.Categorias;
+import com.dompet.api.features.produtos.domain.Categorias;
+import com.dompet.api.features.produtos.domain.Produtos;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

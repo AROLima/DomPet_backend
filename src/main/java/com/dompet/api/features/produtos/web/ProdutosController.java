@@ -1,6 +1,5 @@
-package com.dompet.api.controllers;
+package com.dompet.api.features.produtos.web;
 
-import java.net.URI;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,8 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional; // use this one (Spring)
 import org.springframework.web.bind.annotation.*;
 
-import com.dompet.api.models.categorias.Categorias;
-import com.dompet.api.models.produtos.*;
+import com.dompet.api.features.produtos.domain.Categorias;
+import com.dompet.api.features.produtos.domain.Produtos;
+import com.dompet.api.features.produtos.dto.ProdutosDto;
+import com.dompet.api.features.produtos.repo.ProdutosRepository;
 
 @RestController
 @RequestMapping("/produtos")
@@ -22,11 +23,8 @@ public class ProdutosController {
     @PostMapping
     @Transactional
     public ResponseEntity<Produtos> cadastrarProduto(@RequestBody ProdutosDto dados) {
-        var salvo = repository.save(new Produtos(dados));
-        // retorna 201 Created com Location
-        return ResponseEntity
-                .created(URI.create("/produtos/" + salvo.getId()))
-                .body(salvo);
+        Produtos salvo = repository.save(new Produtos(dados));
+        return ResponseEntity.ok(salvo);
     }
 
     // READ - listagem com filtros opcionais por categoria e nome
@@ -35,13 +33,7 @@ public class ProdutosController {
             @RequestParam(required = false) Categorias categoria,
             @RequestParam(required = false) String nome
     ) {
-        if (categoria != null && nome != null) {
-            // combina os dois filtros (simples: filtra em memória o resultado por nome)
-            return repository.findByNomeContainingIgnoreCase(nome)
-                    .stream()
-                    .filter(p -> p.getCategoria() == categoria)
-                    .toList();
-        }
+    // Se ambos presentes, prioriza filtro por categoria
         if (categoria != null) {
             return repository.findByCategoria(categoria);
         }
@@ -63,10 +55,10 @@ public class ProdutosController {
     @PutMapping("/{id:\\d+}")
     @Transactional
     public ResponseEntity<Void> atualizarProduto(@PathVariable Long id, @RequestBody ProdutosDto dados) {
-        var opt = repository.findById(id);
+    java.util.Optional<Produtos> opt = repository.findById(id);
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
 
-        var produto = opt.get();
+    Produtos produto = opt.get();
         produto.atualizarInformacoes(dados); // entity já trata null/0
         // como está em @Transactional e é entidade gerenciada, não precisa chamar save
         return ResponseEntity.noContent().build();
@@ -76,11 +68,11 @@ public class ProdutosController {
     @DeleteMapping("/{id:\\d+}")
     @Transactional
     public ResponseEntity<Void> excluirProduto(@PathVariable Long id) {
-        var opt = repository.findById(id);
+    java.util.Optional<Produtos> opt = repository.findById(id);
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
 
-        var produto = opt.get();
-        produto.setAtivo(false);
+    Produtos produto = opt.get();
+    produto.excluir();
         return ResponseEntity.noContent().build();
     }
 

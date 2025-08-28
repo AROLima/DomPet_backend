@@ -1,6 +1,7 @@
-package com.dompet.api.models.usuarios;
+package com.dompet.api.features.usuarios.domain;
 
-import com.dompet.api.models.endereco.Endereco;
+import com.dompet.api.shared.endereco.Endereco;
+import com.dompet.api.features.usuarios.dto.UsuariosDto;
 
 import jakarta.persistence.*;
 import lombok.*;

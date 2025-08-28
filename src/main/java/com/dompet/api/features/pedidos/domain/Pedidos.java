@@ -1,10 +1,12 @@
-package com.dompet.api.models.pedidos;
+package com.dompet.api.features.pedidos.domain;
 import java.util.List;
 
-import com.dompet.api.models.endereco.Endereco;
-import com.dompet.api.models.itempedido.ItemPedido;
-import com.dompet.api.models.pedidos.enums.*;
-import com.dompet.api.models.usuarios.Usuarios;
+import com.dompet.api.shared.endereco.Endereco;
+import com.dompet.api.features.pedidos.domain.ItemPedido;
+import com.dompet.api.features.pedidos.domain.StatusPedido;
+import com.dompet.api.features.usuarios.domain.Usuarios;
+import com.dompet.api.features.pedidos.dto.PedidosDto;
+import com.dompet.api.features.pedidos.dto.PedidosDto;
 
 import jakarta.persistence.*;
 import lombok.*;

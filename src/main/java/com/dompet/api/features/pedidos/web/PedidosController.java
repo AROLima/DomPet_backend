@@ -1,4 +1,4 @@
-package com.dompet.api.controllers;
+package com.dompet.api.features.pedidos.web;
 
 import java.util.List;
 
@@ -8,7 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.dompet.api.models.pedidos.*;
+import com.dompet.api.features.pedidos.domain.Pedidos;
+import com.dompet.api.features.pedidos.repo.PedidosRepository;
+import com.dompet.api.features.pedidos.dto.PedidosDto;
 import jakarta.transaction.Transactional;
 
 

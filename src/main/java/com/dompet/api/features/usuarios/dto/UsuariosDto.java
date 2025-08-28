@@ -1,6 +1,6 @@
-package com.dompet.api.models.usuarios;
+package com.dompet.api.features.usuarios.dto;
 
-import com.dompet.api.models.endereco.Endereco;
+import com.dompet.api.shared.endereco.Endereco;
 
 public record UsuariosDto(
     String nome,

@@ -1,8 +1,9 @@
-package com.dompet.api.models.produtos;
+package com.dompet.api.features.produtos.domain;
 
 import java.math.BigDecimal;
 
-import com.dompet.api.models.categorias.Categorias;
+import com.dompet.api.features.produtos.domain.Categorias;
+import com.dompet.api.features.produtos.dto.ProdutosDto;
 
 import jakarta.persistence.*;
 import lombok.*;
