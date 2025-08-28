@@ -67,7 +67,7 @@ public class ProdutosController {
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
 
         var produto = opt.get();
-        produto.atualizarInformacoes(dados); // sua entity já trata null/0
+        produto.atualizarInformacoes(dados); // entity já trata null/0
         // como está em @Transactional e é entidade gerenciada, não precisa chamar save
         return ResponseEntity.noContent().build();
     }

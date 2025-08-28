@@ -1,4 +1,6 @@
 package com.dompet.api.models.produtos;
+import java.math.BigDecimal;
+
 import com.dompet.api.models.categorias.Categorias;
 
 import jakarta.persistence.*;
@@ -23,7 +25,7 @@ public class Produtos {
     @Lob
     private String descricao;
 
-    private double preco;
+    private BigDecimal preco;
     private Integer estoque;
     private String imagemUrl;
 
@@ -51,7 +53,7 @@ public class Produtos {
         if (dados.descricao() != null) {
             this.descricao = dados.descricao();
         }
-        if (dados.preco() != 0) {
+        if (dados.preco() != null && dados.preco().compareTo(BigDecimal.ZERO) != 0) {
             this.preco = dados.preco();
         }
         if (dados.estoque() != null) {
