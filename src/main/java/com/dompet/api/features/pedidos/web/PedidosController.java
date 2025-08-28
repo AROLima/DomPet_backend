@@ -7,6 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import com.dompet.api.features.pedidos.domain.Pedidos;
 import com.dompet.api.features.pedidos.repo.PedidosRepository;
@@ -16,23 +19,27 @@ import jakarta.transaction.Transactional;
 
 @RestController
 @RequestMapping("/pedidos")
+@Tag(name = "Pedidos", description = "Operações com pedidos")
 public class PedidosController {
     @Autowired
     private PedidosRepository repository;
 
     @PostMapping
     @Transactional
+    @Operation(summary = "Cadastrar um pedido", security = { @SecurityRequirement(name = "bearerAuth") })
     public void cadastrarPedido(@RequestBody PedidosDto dados){
         repository.save(new Pedidos(dados));
     }
 
     @GetMapping
+    @Operation(summary = "Listar pedidos", security = { @SecurityRequirement(name = "bearerAuth") })
     public List<Pedidos> listarPedidos() {
         return repository.findAll();
     }
 
     @PutMapping("/{id}")
     @Transactional
+    @Operation(summary = "Atualizar um pedido", security = { @SecurityRequirement(name = "bearerAuth") })
     public void atualizarPedido(@PathVariable Long id, @RequestBody PedidosDto dados) {
         var pedido = repository.getReferenceById(id);
         pedido.atualizarInformacoes(dados);
@@ -41,6 +48,7 @@ public class PedidosController {
     //exclusão logica
     @DeleteMapping("/{id}")
     @Transactional
+    @Operation(summary = "Excluir (lógico) um pedido", security = { @SecurityRequirement(name = "bearerAuth") })
         public ResponseEntity<Void> excluirPedido(@PathVariable Long id) {
             var pedido = repository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido não encontrado"));

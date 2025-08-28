@@ -13,11 +13,14 @@ import com.dompet.api.features.auth.token.TokenService;
 import com.dompet.api.features.usuarios.domain.Usuarios;
 import com.dompet.api.features.usuarios.repo.UsuariosRepository;
 import com.dompet.api.features.usuarios.domain.Role;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Auth", description = "Autenticação e registro")
 public class AuthController {
 
   private final UsuariosRepository usuariosRepo;
@@ -36,6 +39,7 @@ public class AuthController {
   }
 
   @PostMapping("/register")
+  @Operation(summary = "Registro de usuário")
   @Transactional
   public ResponseEntity<AuthResponseDto> register(@RequestBody @Valid AuthRegisterDto dto) {
     if (usuariosRepo.existsByEmail(dto.email())) {
@@ -55,6 +59,7 @@ public class AuthController {
   }
 
   @PostMapping("/login")
+  @Operation(summary = "Login e emissão de JWT")
   public ResponseEntity<AuthResponseDto> login(@RequestBody @Valid AuthLoginDto dto) {
     var token = loginInternal(dto.email(), dto.senha());
     return ResponseEntity.ok(new AuthResponseDto(token));

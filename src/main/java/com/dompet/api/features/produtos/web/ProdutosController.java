@@ -4,16 +4,20 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional; // use this one (Spring)
+import org.springframework.transaction.annotation.Transactional; 
 import org.springframework.web.bind.annotation.*;
 
 import com.dompet.api.features.produtos.domain.Categorias;
 import com.dompet.api.features.produtos.domain.Produtos;
 import com.dompet.api.features.produtos.dto.ProdutosDto;
 import com.dompet.api.features.produtos.repo.ProdutosRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("/produtos")
+@Tag(name = "Produtos", description = "Operações com produtos")
 public class ProdutosController {
 
     @Autowired
@@ -22,6 +26,7 @@ public class ProdutosController {
     // CREATE
     @PostMapping
     @Transactional
+    @Operation(summary = "Cadastrar um produto", security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<Produtos> cadastrarProduto(@RequestBody ProdutosDto dados) {
         Produtos salvo = repository.save(new Produtos(dados));
         return ResponseEntity.ok(salvo);
@@ -29,6 +34,7 @@ public class ProdutosController {
 
     // READ - listagem com filtros opcionais por categoria e nome
     @GetMapping
+    @Operation(summary = "Listar produtos (com filtros opcionais)")
     public List<Produtos> listarProdutos(
             @RequestParam(required = false) Categorias categoria,
             @RequestParam(required = false) String nome
@@ -45,6 +51,7 @@ public class ProdutosController {
 
     // READ - por ID (aceita só dígitos para evitar conflito com outras rotas)
     @GetMapping("/{id:\\d+}")
+    @Operation(summary = "Buscar produto por ID")
     public ResponseEntity<Produtos> buscarProdutoPorId(@PathVariable Long id) {
         return repository.findById(id)
                 .map(ResponseEntity::ok)
@@ -54,6 +61,7 @@ public class ProdutosController {
     // UPDATE (parcial, baseado no seu atualizarInformacoes do entity)
     @PutMapping("/{id:\\d+}")
     @Transactional
+    @Operation(summary = "Atualizar um produto", security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<Void> atualizarProduto(@PathVariable Long id, @RequestBody ProdutosDto dados) {
     java.util.Optional<Produtos> opt = repository.findById(id);
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
@@ -67,6 +75,7 @@ public class ProdutosController {
     // DELETE lógico (ativo = false)
     @DeleteMapping("/{id:\\d+}")
     @Transactional
+    @Operation(summary = "Excluir (lógico) um produto", security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<Void> excluirProduto(@PathVariable Long id) {
     java.util.Optional<Produtos> opt = repository.findById(id);
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
@@ -78,6 +87,7 @@ public class ProdutosController {
 
     // Utilitário opcional: lista os valores possíveis do enum (bom pra front)
     @GetMapping("/categorias")
+    @Operation(summary = "Listar categorias")
     public Categorias[] listarCategorias() {
         return Categorias.values();
     }
