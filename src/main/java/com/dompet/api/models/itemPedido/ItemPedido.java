@@ -2,6 +2,8 @@ package com.dompet.api.models.itempedido;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 import com.dompet.api.models.pedidos.Pedidos;
 import com.dompet.api.models.produtos.Produtos; 
 
@@ -19,7 +21,7 @@ public class ItemPedido {
     private Long id;
 
     private Integer quantidade;
-    private double precoUnitario;
+    private BigDecimal precoUnitario;
 
     @ManyToOne
     @JoinColumn(name = "produto_id", nullable = false)
