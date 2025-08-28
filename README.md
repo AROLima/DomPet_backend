@@ -5,47 +5,45 @@ erDiagram
   PRODUTOS ||--o{ ITEM_PEDIDO : "referenciado por"
 
   USUARIOS {
-    LONG id PK
-    STRING nome
-    STRING email
-    STRING senha
-    STRING role
-    BOOLEAN ativo
+    int id PK
+    string nome
+    string email
+    string senha
+    string role
+    boolean ativo
   }
 
   PRODUTOS {
-    LONG id PK
-    STRING nome
-    TEXT  descricao
-    DECIMAL(10,2) preco
-    INT   estoque
-    STRING imagem_url
-    ENUM  categoria   "RACAO | HIGIENE | MEDICAMENTOS | ACESSORIOS | BRINQUEDOS"
-    BOOLEAN ativo
+    int id PK
+    string nome
+    string descricao
+    float  preco          %% BigDecimal/DECIMAL(10,2) no banco
+    int    estoque
+    string imagem_url
+    string categoria      %% enum no código
+    boolean ativo
   }
 
   PEDIDOS {
-    LONG id PK
-    LONG usuario_id FK
-    ENUM status      "AGUARDANDO_PAGAMENTO | PAGO | ENVIADO | ENTREGUE | CANCELADO"
-    -- Endereco embutido (campos abaixo)
-    STRING endereco_logradouro
-    STRING endereco_numero
-    STRING endereco_complemento
-    STRING endereco_bairro
-    STRING endereco_cidade
-    STRING endereco_estado
-    STRING endereco_cep
-    BOOLEAN ativo
+    int id PK
+    int usuario_id FK
+    string status         %% enum no código
+    string endereco_logradouro
+    string endereco_numero
+    string endereco_complemento
+    string endereco_bairro
+    string endereco_cidade
+    string endereco_estado
+    string endereco_cep
+    boolean ativo
   }
 
   ITEM_PEDIDO {
-    LONG id PK
-    LONG pedido_id FK
-    LONG produto_id FK
-    INT  quantidade
-    DECIMAL(10,2) preco_unitario
-    -- subtotal é calculado
+    int id PK
+    int pedido_id FK
+    int produto_id FK
+    int quantidade
+    float preco_unitario  %% BigDecimal/DECIMAL(10,2) no banco
   }
 ```
 
