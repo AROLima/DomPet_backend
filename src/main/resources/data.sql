@@ -1,3 +1,24 @@
+-- ==== USUÁRIOS (senha entre parênteses p/ teste) ====
+-- ADMIN (senha: Admin@123)
+INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
+('Admin', 'admin@dompet.dev', '$2b$10$E.iUyby25SywbG1jyoHM7uoIDs6mhFnIPDkyTg.4g9Ove6gCp3/py', 'ADMIN', TRUE);
+
+-- RODRIGO (senha: 123456)
+INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
+('Rodrigo', 'rodrigo@dompet.dev', '$2b$10$7m9nB.s8kppeEhvJ9z/wFuK1eMzH5NIo4TqI1g9XJ/CKLmeILJEvq', 'USER', TRUE);
+
+-- JÚLIA (senha: 123456)
+INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
+('Júlia', 'julia@dompet.dev', '$2b$10$cZ3D8Ou65Ps/ryh0tV28fu/0g57FruZhZwp4AnIizLNusjfqCQJEm', 'USER', TRUE);
+
+-- CARLOS (senha: cliente123)
+INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
+('Carlos', 'carlos@dompet.dev', '$2b$10$IOalqC2na454mb7tay7EJei9McMbEkGYfoeyDm.bpuKZPKEEZH5fe', 'USER', TRUE);
+
+-- MARIA (senha: cliente123)
+INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
+('Maria', 'maria@dompet.dev', '$2b$10$Z.BIOEnOYI3bfXtSeTcOtOQIZItTSv24GaP2HR69evFdSVwmUIwDi', 'USER', TRUE);
+
 -- RACAO
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
 ('Ração Premium Cães Adultos 10kg', 'Ração completa para cães adultos, com proteínas de alta qualidade e prebióticos.', 189.90, 25, 'https://picsum.photos/seed/racao-caes-10kg/600/600', 'RACAO', TRUE);

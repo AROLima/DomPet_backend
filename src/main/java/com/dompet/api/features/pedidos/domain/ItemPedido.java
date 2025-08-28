@@ -4,7 +4,6 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
-import com.dompet.api.features.pedidos.domain.Pedidos;
 import com.dompet.api.features.produtos.domain.Produtos; 
 
 @Entity

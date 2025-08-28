@@ -1,4 +1,4 @@
-package com.dompet.api.config;
+package com.dompet.api.common.config;
 
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.OpenAPI;

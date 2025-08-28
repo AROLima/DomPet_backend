@@ -22,8 +22,8 @@ public class Usuarios {
     private String senha;
     private Boolean ativo = true;
 
-
-
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Embedded
     private Endereco endereco;
@@ -33,6 +33,8 @@ public class Usuarios {
         this.email = data.email();
         this.senha = data.senha();
         this.endereco = data.endereco();
+        this.role = data.role();
+        this.ativo = data.ativo();
     }
 
  }
