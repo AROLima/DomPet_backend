@@ -1,7 +1,10 @@
+## 🧾 Diagramas
+
+### ER (banco relacional)
 ```mermaid
 erDiagram
   USUARIOS ||--o{ PEDIDOS : "faz"
-  PEDIDOS  ||--|{ ITEM_PEDIDO : "contém"
+  PEDIDOS  ||--|{ ITEM_PEDIDO : "contem"
   PRODUTOS ||--o{ ITEM_PEDIDO : "referenciado por"
 
   USUARIOS {
@@ -17,17 +20,17 @@ erDiagram
     int id PK
     string nome
     string descricao
-    float  preco          %% BigDecimal/DECIMAL(10,2) no banco
-    int    estoque
+    float preco
+    int estoque
     string imagem_url
-    string categoria      %% enum no código
+    string categoria
     boolean ativo
   }
 
   PEDIDOS {
     int id PK
     int usuario_id FK
-    string status         %% enum no código
+    string status
     string endereco_logradouro
     string endereco_numero
     string endereco_complemento
@@ -43,7 +46,7 @@ erDiagram
     int pedido_id FK
     int produto_id FK
     int quantidade
-    float preco_unitario  %% BigDecimal/DECIMAL(10,2) no banco
+    float preco_unitario
   }
 ```
 
@@ -121,7 +124,7 @@ classDiagram
 
   Usuarios "1" --> "0..*" Pedidos : faz
   Pedidos "1" --> "1" Endereco : embute
-  Pedidos "1" --> "1..*" ItemPedido : contém
+  Pedidos "1" --> "1..*" ItemPedido : contem
   Produtos "1" --> "0..*" ItemPedido : referenciado-por
   ItemPedido "many" --> "1" Produtos : produto
   ItemPedido "many" --> "1" Pedidos : pedido
