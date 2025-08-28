@@ -1,3 +1,4 @@
+```mermaid
 erDiagram
   USUARIOS ||--o{ PEDIDOS : "faz"
   PEDIDOS  ||--|{ ITEM_PEDIDO : "contém"
@@ -46,9 +47,11 @@ erDiagram
     DECIMAL(10,2) preco_unitario
     -- subtotal é calculado
   }
-  
+```
 
-  classDiagram
+### Classes (JPA/domínio)
+```mermaid
+classDiagram
   class Usuarios {
     +Long id
     +String nome
@@ -126,3 +129,4 @@ erDiagram
   ItemPedido "many" --> "1" Pedidos : pedido
   Produtos --> Categorias : enum
   Pedidos --> StatusPedido : enum
+```
