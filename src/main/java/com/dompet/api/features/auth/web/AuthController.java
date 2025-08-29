@@ -1,4 +1,5 @@
 // com/dompet/api/features/auth/web/AuthController.java
+// Endpoints para registrar usuário e fazer login (gerando JWT)
 package com.dompet.api.features.auth.web;
 
 import org.springframework.http.*;
@@ -32,6 +33,7 @@ public class AuthController {
                         PasswordEncoder encoder,
                         AuthenticationManager authManager,
                         TokenService tokenService) {
+  // Injeção de dependências: repositório, encoder de senha, auth manager do Spring e serviço de tokens
     this.usuariosRepo = usuariosRepo;
     this.encoder = encoder;
     this.authManager = authManager;
@@ -42,9 +44,11 @@ public class AuthController {
   @Operation(summary = "Registro de usuário")
   @Transactional
   public ResponseEntity<AuthResponseDto> register(@RequestBody @Valid AuthRegisterDto dto) {
+  // Bloqueia cadastro com email duplicado
     if (usuariosRepo.existsByEmail(dto.email())) {
       return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
+  // Cria o usuário com senha criptografada e role padrão USER
     var u = new Usuarios();
     u.setNome(dto.nome());
     u.setEmail(dto.email());
@@ -61,14 +65,37 @@ public class AuthController {
   @PostMapping("/login")
   @Operation(summary = "Login e emissão de JWT")
   public ResponseEntity<AuthResponseDto> login(@RequestBody @Valid AuthLoginDto dto) {
+  // Autentica usando AuthenticationManager (trigga UserDetailsService + PasswordEncoder)
     var token = loginInternal(dto.email(), dto.senha());
     return ResponseEntity.ok(new AuthResponseDto(token));
   }
 
+  @PostMapping("/logout")
+  @Operation(summary = "Logout (cliente deve descartar o token)")
+  public ResponseEntity<Void> logout() {
+    // JWT é stateless: apenas retorna 204. Se um dia usar cookie HttpOnly, zere-o aqui.
+    return ResponseEntity.noContent().build();
+  }
+
+  @PostMapping("/logout-all")
+  @Transactional
+  @Operation(summary = "Logout em todos os dispositivos (incrementa tokenVersion)")
+  public ResponseEntity<Void> logoutAll(org.springframework.security.core.Authentication auth) {
+    var email = auth.getName();
+    var user = usuariosRepo.findByEmail(email).orElse(null);
+    if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    user.bumpTokenVersion();
+    // JPA dirty checking salva ao sair do método (@Transactional)
+    return ResponseEntity.noContent().build();
+  }
+
   private String loginInternal(String email, String senha) {
+  // Cria um token de autenticação com email/senha
     var authToken = new UsernamePasswordAuthenticationToken(email, senha);
-    var auth = authManager.authenticate(authToken); // dispara UserDetailsService + encoder
+  // Dispara autenticação: verifica usuário e senha
+  var auth = authManager.authenticate(authToken); // dispara UserDetailsService + encoder
     UserDetails principal = (UserDetails) auth.getPrincipal();
+  // Retorna um JWT assinado contendo o email e as roles
     return tokenService.generate(principal);
   }
 }

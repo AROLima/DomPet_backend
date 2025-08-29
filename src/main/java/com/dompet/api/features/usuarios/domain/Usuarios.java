@@ -11,6 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "usuarios")
 public class Usuarios {
 
     @Id
@@ -28,6 +29,9 @@ public class Usuarios {
     @Embedded
     private Endereco endereco;
 
+    @Column(name = "token_version", nullable = false)
+    private Integer tokenVersion = 0;
+
     public Usuarios(UsuariosDto data){
         this.nome = data.nome();
         this.email = data.email();
@@ -36,6 +40,9 @@ public class Usuarios {
         this.role = data.role();
         this.ativo = data.ativo();
     }
-
+    
+    public void bumpTokenVersion() { this.tokenVersion++; }
+    public Integer getTokenVersion() { return tokenVersion; }
+    public void setTokenVersion(Integer v) { this.tokenVersion = v; }
  }
 

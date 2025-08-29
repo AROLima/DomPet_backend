@@ -1,60 +1,53 @@
 package com.dompet.api.features.pedidos.web;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import com.dompet.api.features.pedidos.domain.StatusPedido;
+import com.dompet.api.features.pedidos.dto.CheckoutDto;
+import com.dompet.api.features.pedidos.dto.PedidoResponseDto;
+import com.dompet.api.features.pedidos.service.PedidoService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-
-import com.dompet.api.features.pedidos.domain.Pedidos;
-import com.dompet.api.features.pedidos.repo.PedidosRepository;
-import com.dompet.api.features.pedidos.dto.PedidosDto;
-import jakarta.transaction.Transactional;
-
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/pedidos")
 @Tag(name = "Pedidos", description = "Operações com pedidos")
 public class PedidosController {
-    @Autowired
-    private PedidosRepository repository;
 
-    @PostMapping
-    @Transactional
-    @Operation(summary = "Cadastrar um pedido", security = { @SecurityRequirement(name = "bearerAuth") })
-    public void cadastrarPedido(@RequestBody PedidosDto dados){
-        repository.save(new Pedidos(dados));
+    private final PedidoService service;
+    public PedidosController(PedidoService service) { this.service = service; }
+
+    @PostMapping("/checkout")
+    @Operation(summary = "Checkout do carrinho", security = { @SecurityRequirement(name = "bearerAuth") })
+    public ResponseEntity<PedidoResponseDto> checkout(Authentication auth, @RequestBody CheckoutDto dto) {
+        var resp = service.checkout(auth.getName(), dto);
+        return ResponseEntity.status(201).body(resp);
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Obter pedido por ID (dono ou ADMIN)", security = { @SecurityRequirement(name = "bearerAuth") })
+    public PedidoResponseDto getById(Authentication auth, @PathVariable Long id) {
+        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+        return service.getById(auth.getName(), id, isAdmin);
     }
 
     @GetMapping
-    @Operation(summary = "Listar pedidos", security = { @SecurityRequirement(name = "bearerAuth") })
-    public List<Pedidos> listarPedidos() {
-        return repository.findAll();
+    @Operation(summary = "Listar meus pedidos", security = { @SecurityRequirement(name = "bearerAuth") })
+    public Page<PedidoResponseDto> listMine(Authentication auth, Pageable p) {
+        return service.listMine(auth.getName(), p);
     }
 
-    @PutMapping("/{id}")
-    @Transactional
-    @Operation(summary = "Atualizar um pedido", security = { @SecurityRequirement(name = "bearerAuth") })
-    public void atualizarPedido(@PathVariable Long id, @RequestBody PedidosDto dados) {
-        var pedido = repository.getReferenceById(id);
-        pedido.atualizarInformacoes(dados);
+    record UpdateStatusDto(String status) {}
+
+    @PatchMapping("/{id}/status")
+    @Operation(summary = "Atualizar status (ADMIN)", security = { @SecurityRequirement(name = "bearerAuth") })
+    public ResponseEntity<Void> updateStatus(@PathVariable Long id, @RequestBody UpdateStatusDto body) {
+        StatusPedido novo = StatusPedido.valueOf(body.status());
+        service.updateStatusAsAdmin(id, novo);
+        return ResponseEntity.noContent().build();
     }
-
-    //exclusão logica
-    @DeleteMapping("/{id}")
-    @Transactional
-    @Operation(summary = "Excluir (lógico) um pedido", security = { @SecurityRequirement(name = "bearerAuth") })
-        public ResponseEntity<Void> excluirPedido(@PathVariable Long id) {
-            var pedido = repository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido não encontrado"));
-            pedido.excluir();
-            repository.save(pedido);
-            return ResponseEntity.noContent().build();
-        }
-
 }

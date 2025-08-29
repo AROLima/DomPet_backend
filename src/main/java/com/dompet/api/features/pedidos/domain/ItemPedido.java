@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import com.dompet.api.features.produtos.domain.Produtos; 
 
@@ -18,6 +19,7 @@ public class ItemPedido {
     private Long id;
 
     private Integer quantidade;
+    @Column(precision = 10, scale = 2)
     private BigDecimal precoUnitario;
 
     @ManyToOne
@@ -28,11 +30,13 @@ public class ItemPedido {
     @JoinColumn(name = "pedido_id", nullable = false)
     private Pedidos pedido;
 
+    @Transient
     private BigDecimal subtotal;
 
     public BigDecimal calcularSubtotal() {
         if (quantidade != null && precoUnitario != null) {
-            subtotal = precoUnitario.multiply(new BigDecimal(quantidade));
+            subtotal = precoUnitario.multiply(BigDecimal.valueOf(quantidade))
+                .setScale(2, RoundingMode.HALF_UP);
         }
         return subtotal;
     }   

@@ -1,23 +1,25 @@
 -- ==== USUÁRIOS (senha entre parênteses p/ teste) ====
 -- ADMIN (senha: Admin@123)
-INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
-('Admin', 'admin@dompet.dev', '$2b$10$E.iUyby25SywbG1jyoHM7uoIDs6mhFnIPDkyTg.4g9Ove6gCp3/py', 'ADMIN', TRUE);
+INSERT INTO usuarios (nome, email, senha, role, ativo, token_version)
+VALUES ('Admin', 'admin@dompet.dev',
+        '$2b$10$E.iUyby25SywbG1jyoHM7uoIDs6mhFnIPDkyTg.4g9Ove6gCp3/py',
+        'ADMIN', TRUE, 0);
 
 -- RODRIGO (senha: 123456)
-INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
-('Rodrigo', 'rodrigo@dompet.dev', '$2b$10$7m9nB.s8kppeEhvJ9z/wFuK1eMzH5NIo4TqI1g9XJ/CKLmeILJEvq', 'USER', TRUE);
+INSERT INTO usuarios (nome, email, senha, role, ativo, token_version) VALUES
+('Rodrigo', 'rodrigo@dompet.dev', '$2b$10$7m9nB.s8kppeEhvJ9z/wFuK1eMzH5NIo4TqI1g9XJ/CKLmeILJEvq', 'USER', TRUE, 0);
 
 -- JÚLIA (senha: 123456)
-INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
-('Júlia', 'julia@dompet.dev', '$2b$10$cZ3D8Ou65Ps/ryh0tV28fu/0g57FruZhZwp4AnIizLNusjfqCQJEm', 'USER', TRUE);
+INSERT INTO usuarios (nome, email, senha, role, ativo, token_version) VALUES
+('Júlia', 'julia@dompet.dev', '$2b$10$cZ3D8Ou65Ps/ryh0tV28fu/0g57FruZhZwp4AnIizLNusjfqCQJEm', 'USER', TRUE, 0);
 
 -- CARLOS (senha: cliente123)
-INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
-('Carlos', 'carlos@dompet.dev', '$2b$10$IOalqC2na454mb7tay7EJei9McMbEkGYfoeyDm.bpuKZPKEEZH5fe', 'USER', TRUE);
+INSERT INTO usuarios (nome, email, senha, role, ativo, token_version) VALUES
+('Carlos', 'carlos@dompet.dev', '$2b$10$IOalqC2na454mb7tay7EJei9McMbEkGYfoeyDm.bpuKZPKEEZH5fe', 'USER', TRUE, 0);
 
 -- MARIA (senha: cliente123)
-INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
-('Maria', 'maria@dompet.dev', '$2b$10$Z.BIOEnOYI3bfXtSeTcOtOQIZItTSv24GaP2HR69evFdSVwmUIwDi', 'USER', TRUE);
+INSERT INTO usuarios (nome, email, senha, role, ativo, token_version) VALUES
+('Maria', 'maria@dompet.dev', '$2b$10$Z.BIOEnOYI3bfXtSeTcOtOQIZItTSv24GaP2HR69evFdSVwmUIwDi', 'USER', TRUE, 0);
 
 -- RACAO
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES

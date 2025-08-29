@@ -1,0 +1,115 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-08-28T00:00:00.000Z",
+  "__export_source": "generated.by.github.copilot",
+  "resources": [
+    {
+      "_id": "wrk_dompet_api",
+      "_type": "workspace",
+      "name": "DomPet API",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "parentId": "wrk_dompet_api",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:8080"
+      }
+    },
+
+    {
+      "_id": "req_auth_register",
+      "_type": "request",
+      "parentId": "wrk_dompet_api",
+      "name": "Auth - Register",
+      "method": "POST",
+      "url": "{{ base_url }}/auth/register",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Rodrigo\",\n  \"email\": \"rodrigo@dompet.dev\",\n  \"senha\": \"123456\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ]
+    },
+    {
+      "_id": "req_auth_login",
+      "_type": "request",
+      "parentId": "wrk_dompet_api",
+      "name": "Auth - Login",
+      "method": "POST",
+      "url": "{{ base_url }}/auth/login",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"admin@dompet.dev\",\n  \"senha\": \"Admin@123\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ]
+    },
+    {
+      "_id": "req_auth_logout",
+      "_type": "request",
+      "parentId": "wrk_dompet_api",
+      "name": "Auth - Logout",
+      "method": "POST",
+      "url": "{{ base_url }}/auth/logout",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'Auth - Login', '$.token' %}" }
+      ]
+    },
+    {
+      "_id": "req_auth_logout_all",
+      "_type": "request",
+      "parentId": "wrk_dompet_api",
+      "name": "Auth - Logout All",
+      "method": "POST",
+      "url": "{{ base_url }}/auth/logout-all",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'Auth - Login', '$.token' %}" }
+      ]
+    },
+
+    {
+      "_id": "fld_produtos",
+      "_type": "request_group",
+      "parentId": "wrk_dompet_api",
+      "name": "Produtos"
+    },
+    {
+      "_id": "req_produtos_list",
+      "_type": "request",
+      "parentId": "fld_produtos",
+      "name": "GET /produtos (público)",
+      "method": "GET",
+      "url": "{{ base_url }}/produtos"
+    },
+    {
+      "_id": "req_produtos_get_id",
+      "_type": "request",
+      "parentId": "fld_produtos",
+      "name": "GET /produtos/{id} (público)",
+      "method": "GET",
+      "url": "{{ base_url }}/produtos/1"
+    },
+    {
+      "_id": "req_produtos_create",
+      "_type": "request",
+      "parentId": "fld_produtos",
+      "name": "POST /produtos (ADMIN)",
+      "method": "POST",
+      "url": "{{ base_url }}/produtos",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Ração Premium Cães Adultos 10kg\",\n  \"descricao\": \"Ração completa para cães adultos\",\n  \"preco\": 189.90,\n  \"estoque\": 10,\n  \"imagemUrl\": \"https://picsum.photos/seed/racao-premium/600/600\",\n  \"ativo\": true,\n  \"categoria\": \"RACAO\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'Auth - Login', '$.token' %}" }
+      ]
+    }
+  ]
+}

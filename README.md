@@ -1,6 +1,6 @@
 # Dompet API — E-commerce (Spring Boot)
 
-> Backend para e-commerce, com **estrutura por feature**, **JWT**, **H2**, **Swagger** e exemplos de **seed**
+> Backend para e-commerce com **estrutura por feature**, **JWT**, **H2**, **Swagger** e exemplos de **seed**
 
 ## ⚙️ Stack
 - **Java 21**, **Spring Boot 3.5**
@@ -12,19 +12,27 @@
 
 ---
 
+## 🔗 Links rápidos
+
+- Swagger UI: http://localhost:8080/swagger-ui.html
+- OpenAPI JSON: http://localhost:8080/v3/api-docs
+
+---
+
 ## 📁 Estrutura (feature‑first)
 
 ```
 com.dompet.api
 ├─ common/
 │  ├─ config/                 # Security, Swagger, CORS, Jackson, etc.
-│  └─ exception/              # Handler global
+│  └─ errors/                 # Exceptions + handler global
 ├─ shared/
 │  └─ endereco/Endereco.java  # @Embeddable reutilizado
 └─ features/
    ├─ auth/                   # DTOs, controller, filtro JWT, TokenService
    ├─ produtos/               # domain, dto, repo, web
-   ├─ pedidos/                # domain (Pedido, ItemPedido), repo, web
+   ├─ carrinho/               # domain (Carrinho, ItemCarrinho), dto, repo, service, web
+   ├─ pedidos/                # domain (Pedido, ItemPedido), dto, repo, service, web
    └─ usuarios/               # domain, repo, web
 ```
 
@@ -63,11 +71,13 @@ com.dompet.api
 ```properties
 # JWT
 app.jwt.secret=COLA_AQUI_UMA_CHAVE_BASE64_DE_32_BYTES
-app.jwt.expiration=1h
+app.jwt.expiration-ms=3600000  # 1h
 
 # H2 (dev)
 spring.h2.console.enabled=true
 spring.jpa.hibernate.ddl-auto=update
+spring.jpa.defer-datasource-initialization=true
+spring.sql.init.mode=always
 ```
 
 **Gerar chave** (32 bytes Base64 / HS256):
@@ -100,6 +110,7 @@ erDiagram
     STRING senha
     STRING role
     BOOLEAN ativo
+    INT token_version
   }
 
   PRODUTOS {
@@ -146,6 +157,8 @@ classDiagram
     +String senha
     +String role
     +Boolean ativo
+    +Integer tokenVersion
+    +void bumpTokenVersion()
   }
 
   class Produtos {
@@ -227,6 +240,17 @@ classDiagram
 - Java 21, Maven
 - (Dev) H2 Console: `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:dompet`)
 
+### Iniciar a API (Windows/PowerShell)
+- Via Maven Wrapper (sem Maven instalado):
+  ```powershell
+  .\mvnw.cmd spring-boot:run
+  ```
+- Ou gerando o jar:
+  ```powershell
+  .\mvnw.cmd -q -DskipTests package
+  java -jar .\target\api-*.jar
+  ```
+
 ## 📖 Swagger / OpenAPI
 - **UI**: `http://localhost:8080/swagger-ui.html`
 - **Docs**: `http://localhost:8080/v3/api-docs`
@@ -274,16 +298,18 @@ INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
   ```json
   { "email":"rodrigo@dompet.dev", "senha":"123456" }
   ```
+- `POST /auth/logout` → 204 No Content (stateless). Cliente deve descartar o token.
+- `POST /auth/logout-all` → 204; incrementa tokenVersion. Tokens antigos passam a 401.
 
 ### Produtos
 - `GET /produtos` — público; filtros opcionais:
   - `?categoria=RACAO`
   - `?nome=golden`
 - `GET /produtos/{id}` — público
-- `POST /produtos` — **autenticado** (envie `Authorization: Bearer <token>`)
-- `PUT /produtos/{id}` — autenticado
-- `DELETE /produtos/{id}` — autenticado (soft delete `ativo=false`)
-- `PATCH /produtos/{id}/ativar` — autenticado (undo do soft delete)
+- `POST /produtos` — **ADMIN** (envie `Authorization: Bearer <token>`)
+- `PUT /produtos/{id}` — **ADMIN**
+- `DELETE /produtos/{id}` — **ADMIN** (soft delete `ativo=false`)
+- `PATCH /produtos/{id}/ativar` — **ADMIN** (undo do soft delete)
 
 **Exemplo de criação:**
 ```json
@@ -298,15 +324,86 @@ INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
 }
 ```
 
-### Pedidos / Carrinho (quando implementar)
-- `POST /carrinho/add`, `PATCH /carrinho/update`, `POST /checkout` …
+### Carrinho
+- Todas exigem Authorization: Bearer <token>
+- `GET /cart` — retorna o carrinho atual (ABERTO) do usuário
+- `POST /cart/items` — adiciona/mescla item
+  ```json
+  { "produtoId": 1, "quantidade": 2 }
+  ```
+- `PATCH /cart/items/{itemId}` — atualiza quantidade (0 remove)
+  ```json
+  { "quantidade": 3 }
+  ```
+- `DELETE /cart/items/{itemId}` — remove item
+- `DELETE /cart` — limpa carrinho
 
-
-
+### Pedidos
+- `POST /pedidos/checkout` — cria pedido a partir do carrinho e zera o carrinho
+  ```json
+  {
+    "enderecoEntrega": {
+      "logradouro": "Rua A",
+      "numero": "100",
+      "complemento": "ap 12",
+      "bairro": "Centro",
+      "cidade": "SP",
+      "estado": "SP",
+      "cep": "01000-000"
+    },
+    "observacoes": "Entregar à tarde",
+    "metodoPagamento": "CARTAO"
+  }
+  ```
+- `GET /pedidos` — lista meus pedidos (paginado)
+- `GET /pedidos/{id}` — detalhe (dono ou ADMIN)
+- `PATCH /pedidos/{id}/status` — ADMIN (ex.: `PAGO`, `ENVIADO`, `ENTREGUE`, `CANCELADO`)
 
 ### Insomnia/Postman
-1. **POST** `/auth/register` ou **/auth/login** → copie `token` do JSON  
-2. Nas requests protegidas, use **Bearer Token** com o JWT.
+1. **POST** `/auth/register` ou `/auth/login` → copie `token` do JSON
+2. **GET** `/produtos` (público)
+3. **POST** `/cart/items` (com Bearer)
+4. **GET** `/cart`
+5. **POST** `/pedidos/checkout`
+6. **GET** `/pedidos`
+
+Coleção pronta (import): `docs/Insomnia_DomPet_API.json`.
+
+---
+
+## 🔐 Fluxos (Mermaid)
+
+### Login e uso de token
+```mermaid
+sequenceDiagram
+  autonumber
+  participant C as Cliente (App/Web)
+  participant API as Dompet API
+  C->>API: POST /auth/login { email, senha }
+  API-->>C: 200 { token }
+  Note right of C: Armazena token e envia no header Authorization: Bearer <token>
+  C->>API: GET /produtos (Authorization: Bearer ...)
+  API-->>C: 200 lista
+```
+
+### Logout-all com tokenVersion
+```mermaid
+sequenceDiagram
+  autonumber
+  participant C as Cliente (token A)
+  participant API as Dompet API
+  participant DB as DB (usuarios.token_version)
+  C->>API: POST /auth/logout-all (Authorization: Bearer token A)
+  API->>DB: usuarios.bumpTokenVersion()
+  API-->>C: 204 No Content
+  Note over DB: token_version incrementado (ex.: 0 → 1)
+  C->>API: GET /pedidos (Authorization: Bearer token A)
+  API-->>C: 401 Unauthorized (ver do token != token_version)
+  C->>API: POST /auth/login (novamente)
+  API-->>C: 200 { token B (ver=1) }
+  C->>API: GET /pedidos (Authorization: Bearer token B)
+  API-->>C: 200 OK
+```
 
 ---
 
@@ -316,13 +413,12 @@ INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
 - DTOs com validação (@NotBlank/@NotNull/@PositiveOrZero)
 - Enum `Categorias` persistido como `STRING`
 - Filtro JWT `OncePerRequestFilter` + Security stateless
-- Erros de validação tratáveis com `@RestControllerAdvice` (sugestão)
+- Erros de validação e domínio centralizados em handler global
 
 ---
 
-## 🗺️ A ser implementado
-- Carrinho + Checkout
-
+## 🗺️ Notas
+- `schema.sql` garante coluna `usuarios.token_version` com default em bancos que precisarem.
 
 ---
 
