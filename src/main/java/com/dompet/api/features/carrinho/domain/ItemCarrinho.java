@@ -7,6 +7,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+/** Item de carrinho: produto + quantidade e subtotal calculado. */
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Entity
@@ -23,6 +24,7 @@ public class ItemCarrinho {
     @Column(nullable = false)
     private Integer quantidade;
 
+    /** preço unitário x quantidade, arredondado para 2 casas. */
     public BigDecimal getSubtotal() {
         if (produto == null || produto.getPreco() == null || quantidade == null) return null;
         return produto.getPreco()

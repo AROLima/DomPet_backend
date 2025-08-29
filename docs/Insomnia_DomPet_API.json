@@ -58,7 +58,7 @@
       "method": "POST",
       "url": "{{ base_url }}/auth/logout",
       "headers": [
-        { "name": "Authorization", "value": "Bearer {% response 'body', 'Auth - Login', '$.token' %}" }
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
       ]
     },
     {
@@ -69,7 +69,7 @@
       "method": "POST",
       "url": "{{ base_url }}/auth/logout-all",
       "headers": [
-        { "name": "Authorization", "value": "Bearer {% response 'body', 'Auth - Login', '$.token' %}" }
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
       ]
     },
 
@@ -108,7 +108,169 @@
       },
       "headers": [
         { "name": "Content-Type", "value": "application/json" },
-        { "name": "Authorization", "value": "Bearer {% response 'body', 'Auth - Login', '$.token' %}" }
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ]
+    }
+    ,
+    {
+      "_id": "fld_cart",
+      "_type": "request_group",
+      "parentId": "wrk_dompet_api",
+      "name": "Carrinho"
+    },
+    {
+      "_id": "req_cart_get",
+      "_type": "request",
+      "parentId": "fld_cart",
+      "name": "GET /cart",
+      "method": "GET",
+      "url": "{{ base_url }}/cart",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ]
+    },
+    {
+      "_id": "req_cart_add_item",
+      "_type": "request",
+      "parentId": "fld_cart",
+      "name": "POST /cart/items",
+      "method": "POST",
+      "url": "{{ base_url }}/cart/items",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"produtoId\": 1,\n  \"quantidade\": 2\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ]
+    },
+    {
+      "_id": "req_cart_update_item",
+      "_type": "request",
+      "parentId": "fld_cart",
+      "name": "PATCH /cart/items/{itemId}",
+      "method": "PATCH",
+      "url": "{{ base_url }}/cart/items/1",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"quantidade\": 3\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ]
+    },
+    {
+      "_id": "req_cart_delete_item",
+      "_type": "request",
+      "parentId": "fld_cart",
+      "name": "DELETE /cart/items/{itemId}",
+      "method": "DELETE",
+      "url": "{{ base_url }}/cart/items/1",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ]
+    },
+    {
+      "_id": "req_cart_clear",
+      "_type": "request",
+      "parentId": "fld_cart",
+      "name": "DELETE /cart",
+      "method": "DELETE",
+      "url": "{{ base_url }}/cart",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ]
+    },
+
+    {
+      "_id": "fld_pedidos",
+      "_type": "request_group",
+      "parentId": "wrk_dompet_api",
+      "name": "Pedidos"
+    },
+    {
+      "_id": "req_pedidos_checkout",
+      "_type": "request",
+      "parentId": "fld_pedidos",
+      "name": "POST /pedidos/checkout",
+      "method": "POST",
+      "url": "{{ base_url }}/pedidos/checkout",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"enderecoEntrega\": {\n    \"logradouro\": \"Rua A\",\n    \"numero\": \"100\",\n    \"complemento\": \"ap 12\",\n    \"bairro\": \"Centro\",\n    \"cidade\": \"SP\",\n    \"estado\": \"SP\",\n    \"cep\": \"01000-000\"\n  },\n  \"observacoes\": \"Entregar à tarde\",\n  \"metodoPagamento\": \"CARTAO\"\n}"
+      },
+      "headers": [
+  { "name": "Content-Type", "value": "application/json" },
+  { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ]
+    },
+    {
+      "_id": "req_pedidos_list",
+      "_type": "request",
+      "parentId": "fld_pedidos",
+      "name": "GET /pedidos",
+      "method": "GET",
+      "url": "{{ base_url }}/pedidos",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ]
+    },
+    {
+      "_id": "req_pedidos_get_id",
+      "_type": "request",
+      "parentId": "fld_pedidos",
+      "name": "GET /pedidos/{id}",
+      "method": "GET",
+      "url": "{{ base_url }}/pedidos/1",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ]
+    },
+    {
+      "_id": "req_pedidos_patch_status",
+      "_type": "request",
+      "parentId": "fld_pedidos",
+      "name": "PATCH /pedidos/{id}/status (ADMIN)",
+      "method": "PATCH",
+      "url": "{{ base_url }}/pedidos/1/status?novo=PAGO",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ]
+    }
+    ,
+    {
+      "_id": "req_carrinho_patch_delta",
+      "_type": "request",
+      "parentId": "fld_cart",
+      "name": "PATCH /carrinho/{carrinhoId}/itens/{produtoId}?delta=",
+      "method": "PATCH",
+      "url": "{{ base_url }}/carrinho/1/itens/1?delta=1",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ]
+    },
+    {
+      "_id": "req_carrinho_incrementar",
+      "_type": "request",
+      "parentId": "fld_cart",
+      "name": "POST /carrinho/{carrinhoId}/itens/{produtoId}/incrementar?by=",
+      "method": "POST",
+      "url": "{{ base_url }}/carrinho/1/itens/1/incrementar?by=1",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ]
+    },
+    {
+      "_id": "req_carrinho_decrementar",
+      "_type": "request",
+      "parentId": "fld_cart",
+      "name": "POST /carrinho/{carrinhoId}/itens/{produtoId}/decrementar?by=",
+      "method": "POST",
+      "url": "{{ base_url }}/carrinho/1/itens/1/decrementar?by=1",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
       ]
     }
   ]

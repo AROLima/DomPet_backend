@@ -4,6 +4,7 @@ import com.dompet.api.shared.endereco.EnderecoDto;
 import java.math.BigDecimal;
 import java.util.*;
 
+/** Resposta de pedido com itens, total e timestamps. */
 public record PedidoResponseDto(
     Long id,
     String status,
@@ -12,6 +13,7 @@ public record PedidoResponseDto(
     BigDecimal total,
     Date createdAt
 ) {
+    /** Item do pedido no response. */
     public record ItemDto(
         Long produtoId,
         String nome,

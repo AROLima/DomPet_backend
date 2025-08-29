@@ -8,6 +8,9 @@ import com.dompet.api.features.usuarios.domain.Usuarios;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * Entidade de Pedido: usuário, itens, endereço de entrega, status e total.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -46,5 +49,6 @@ public class Pedidos {
     @PreUpdate
     void onUpdate() { this.updatedAt = new Date(); }
 
+    /** Exclusão lógica do pedido. */
     public void excluir() { this.ativo = false; }
 }

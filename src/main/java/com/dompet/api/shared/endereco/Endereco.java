@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 
+/**
+ * Valor embutido de endereço, usado em Usuários e Pedidos.
+ */
 @Getter
 @Setter
 @AllArgsConstructor
@@ -17,7 +20,4 @@ public class Endereco {
     private String cep;
     private String cidade;
     private String complemento;
-
-
-
 }

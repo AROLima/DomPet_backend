@@ -13,6 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Endpoints de pedidos: checkout do carrinho, listar/obter pedidos do usuário,
+ * e atualização de status por ADMIN.
+ */
 @RestController
 @RequestMapping("/pedidos")
 @Tag(name = "Pedidos", description = "Operações com pedidos")
@@ -43,6 +47,7 @@ public class PedidosController {
 
     record UpdateStatusDto(String status) {}
 
+    /** Atualização de status restrita a ADMIN (verificada na security). */
     @PatchMapping("/{id}/status")
     @Operation(summary = "Atualizar status (ADMIN)", security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<Void> updateStatus(@PathVariable Long id, @RequestBody UpdateStatusDto body) {

@@ -4,6 +4,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.List;
 
+/** Perfis de acesso e suas authorities padrão (ROLE_*) */
 public enum Role {
     USER,
     ADMIN;

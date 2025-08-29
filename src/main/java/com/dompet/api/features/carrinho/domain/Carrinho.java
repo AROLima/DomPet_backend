@@ -8,6 +8,13 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
+/**
+ * Entidade Carrinho com itens e total calculado.
+ * - usuario: dono do carrinho
+ * - status: ABERTO/FECHADO
+ * - itens: OneToMany com cascade e orphanRemoval (itens são persistidos/removidos junto)
+ * - createdAt/updatedAt: timestamps via @PrePersist/@PreUpdate
+ */
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Entity
@@ -36,6 +43,7 @@ public class Carrinho {
     @PreUpdate
     void onUpdate() { this.updatedAt = new Date(); }
 
+    /** Soma os subtotais dos itens com arredondamento de 2 casas. */
     public BigDecimal getTotal() {
         return itens.stream()
                 .map(ItemCarrinho::getSubtotal)

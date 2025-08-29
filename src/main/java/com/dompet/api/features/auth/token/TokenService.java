@@ -20,7 +20,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import javax.crypto.SecretKey;
 
 @Service
-// Serviço que cria e valida tokens JWT (HS256) + versão de sessão (logout-all)
+/**
+ * Serviço responsável por criar e validar tokens JWT (HS256).
+ * - Usa um segredo forte (>= 32 bytes). Preferível fornecer em Base64 via app.jwt.secret
+ * - Inclui a claim "ver" (tokenVersion) para invalidar tokens antigos após logout-all.
+ */
 public class TokenService {
 
   private final SecretKey key;
@@ -38,7 +42,7 @@ public class TokenService {
     } catch (IllegalArgumentException ex) {
       raw = secret.getBytes(java.nio.charset.StandardCharsets.UTF_8);
     }
-    if (raw.length < 32) {
+  if (raw.length < 32) {
       throw new IllegalArgumentException("app.jwt.secret precisa ter >= 32 bytes (HS256). Gere em Base64.");
     }
     this.key = Keys.hmacShaKeyFor(raw);
@@ -46,7 +50,12 @@ public class TokenService {
     this.usuariosRepo = usuariosRepo;
   }
 
-  /** Gera JWT com: sub=email, roles, ver=tokenVersion do usuário */
+  /**
+   * Gera JWT com:
+   * - sub = email (subject)
+   * - roles = authorities do usuário (para clientes inspecionarem se necessário)
+   * - ver = tokenVersion do usuário (invalidação de tokens antigos)
+   */
   public String generate(UserDetails principal) {
     var email = principal.getUsername();
     var user  = usuariosRepo.findByEmail(email).orElseThrow();
@@ -68,25 +77,31 @@ public class TokenService {
         .compact();
   }
 
-  /** Lê o token do header Authorization: Bearer <token> */
+  /**
+   * Extrai token do header Authorization.
+   * Ex.: Authorization: Bearer <token>
+   */
   public String resolveToken(HttpServletRequest req) {
     var h = req.getHeader("Authorization");
     if (h != null && h.startsWith("Bearer ")) return h.substring(7);
     return null;
   }
 
-  /** Valida assinatura/expiração e retorna Claims (lança JwtException se inválido) */
+  /**
+   * Valida assinatura/expiração e retorna Claims.
+   * Lança JwtException quando inválido/expirado.
+   */
   public Claims parseClaims(String token) throws JwtException {
     return Jwts.parserBuilder().setSigningKey(key).build()
         .parseClaimsJws(token).getBody();
   }
 
-  /** Atalho: subject (email) do token */
+  /** Atalho: obtém o subject (email) do token. */
   public String getSubject(String token) {
     return parseClaims(token).getSubject();
   }
 
-  /** True se sintaticamente válido e não expirado */
+  /** True se sintaticamente válido e não expirado. */
   public boolean isValid(String token) {
     try {
       parseClaims(token);

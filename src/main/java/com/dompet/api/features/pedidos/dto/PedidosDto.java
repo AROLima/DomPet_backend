@@ -1,5 +1,5 @@
 package com.dompet.api.features.pedidos.dto;
 
-// Legacy placeholder to avoid breaking imports if any remain.
-// New flow uses CheckoutDto and PedidoResponseDto.
+/** Placeholder legado para evitar quebrar imports antigos.
+ *  O fluxo atual usa CheckoutDto e PedidoResponseDto. */
 public class PedidosDto { }

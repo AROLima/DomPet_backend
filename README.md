@@ -128,12 +128,12 @@ erDiagram
     LONG id PK
     LONG usuario_id FK
     ENUM status      "AGUARDANDO_PAGAMENTO | PAGO | ENVIADO | ENTREGUE | CANCELADO"
-    STRING endereco_logradouro
+  STRING endereco_rua
     STRING endereco_numero
-    STRING endereco_complemento
     STRING endereco_bairro
-    STRING endereco_cidade
-    STRING endereco_estado
+  STRING endereco_cep
+  STRING endereco_cidade
+  STRING endereco_complemento
     STRING endereco_cep
     BOOLEAN ativo
   }
@@ -195,13 +195,12 @@ classDiagram
 
   class Endereco {
     <<@Embeddable>>
-    +String logradouro
+  +String rua
     +String numero
-    +String complemento
     +String bairro
+  +String cep
     +String cidade
-    +String estado
-    +String cep
+  +String complemento
   }
 
   class Categorias {
@@ -305,11 +304,12 @@ INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
 - `GET /produtos` — público; filtros opcionais:
   - `?categoria=RACAO`
   - `?nome=golden`
+  - Para paginação sem quebrar compat: use `GET /produtos/search?page=0&size=12&sort=preco,asc&nome=golden&categoria=RACAO`
 - `GET /produtos/{id}` — público
+- `GET /produtos/categorias` — público; enum de categorias disponíveis
 - `POST /produtos` — **ADMIN** (envie `Authorization: Bearer <token>`)
 - `PUT /produtos/{id}` — **ADMIN**
 - `DELETE /produtos/{id}` — **ADMIN** (soft delete `ativo=false`)
-- `PATCH /produtos/{id}/ativar` — **ADMIN** (undo do soft delete)
 
 **Exemplo de criação:**
 ```json
@@ -338,18 +338,26 @@ INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
 - `DELETE /cart/items/{itemId}` — remove item
 - `DELETE /cart` — limpa carrinho
 
+#### Delta de quantidade (API dedicada)
+- `PATCH /carrinho/{carrinhoId}/itens/{produtoId}?delta=INT` — aplica delta (positivo/negativo)
+- `POST /carrinho/{carrinhoId}/itens/{produtoId}/incrementar?by=INT` — açúcar para delta positivo
+- `POST /carrinho/{carrinhoId}/itens/{produtoId}/decrementar?by=INT` — açúcar para delta negativo
+
+Observações:
+- Use o `id` retornado em `GET /cart` como `{carrinhoId}`.
+- Regras: `delta != 0`, não decrementar item inexistente, resultado não pode ser negativo nem exceder estoque; resultado 0 remove o item.
+
 ### Pedidos
 - `POST /pedidos/checkout` — cria pedido a partir do carrinho e zera o carrinho
   ```json
   {
     "enderecoEntrega": {
-      "logradouro": "Rua A",
+  "rua": "Rua A",
       "numero": "100",
-      "complemento": "ap 12",
       "bairro": "Centro",
+  "cep": "01000-000",
       "cidade": "SP",
-      "estado": "SP",
-      "cep": "01000-000"
+  "complemento": "ap 12"
     },
     "observacoes": "Entregar à tarde",
     "metodoPagamento": "CARTAO"
@@ -367,7 +375,30 @@ INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
 5. **POST** `/pedidos/checkout`
 6. **GET** `/pedidos`
 
+Extras de carrinho (delta):
+- `PATCH /carrinho/{carrinhoId}/itens/{produtoId}?delta=1`
+- `POST /carrinho/{carrinhoId}/itens/{produtoId}/incrementar?by=1`
+- `POST /carrinho/{carrinhoId}/itens/{produtoId}/decrementar?by=1`
+
 Coleção pronta (import): `docs/Insomnia_DomPet_API.json`.
+
+---
+
+## Erros (ProblemDetail)
+- Formato: `application/problem+json`
+- Campos: `type?`, `title`, `status`, `detail`, `errors?` (lista de `{field,message}`)
+- Exemplos:
+  - 400 validação body/query
+  - 403 acesso negado
+  - 404 não encontrado
+
+## CORS
+- Dev: liberado `Authorization` e `Content-Type`, métodos GET/POST/PUT/PATCH/DELETE/OPTIONS e origens `*`.
+- Prod: ajuste origem no bean `corsConfigurationSource()` (ex.: `https://app.seudominio.com`).
+
+## Segredos
+- Em dev, `app.jwt.secret` pode ficar em `application.properties`.
+- Em prod, defina por variável de ambiente: `JAVA_TOOL_OPTIONS=-Dapp.jwt.secret=...` ou via `SPRING_APPLICATION_JSON`.
 
 ---
 

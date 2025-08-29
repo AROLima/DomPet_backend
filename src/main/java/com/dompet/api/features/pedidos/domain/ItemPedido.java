@@ -7,6 +7,7 @@ import java.math.RoundingMode;
 
 import com.dompet.api.features.produtos.domain.Produtos; 
 
+/** Item do pedido: snapshot de preço/quantidade de um produto. */
 @Entity
 @Getter
 @Setter
@@ -33,6 +34,7 @@ public class ItemPedido {
     @Transient
     private BigDecimal subtotal;
 
+    /** Calcula subtotal (preço unitário x quantidade). */
     public BigDecimal calcularSubtotal() {
         if (quantidade != null && precoUnitario != null) {
             subtotal = precoUnitario.multiply(BigDecimal.valueOf(quantidade))

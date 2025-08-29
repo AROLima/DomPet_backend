@@ -6,6 +6,10 @@ import com.dompet.api.features.usuarios.dto.UsuariosDto;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * Entidade de usuários do sistema.
+ * Inclui tokenVersion para suportar logout-all (invalidação de tokens antigos).
+ */
 @Setter
 @Getter
 @AllArgsConstructor
@@ -29,6 +33,7 @@ public class Usuarios {
     @Embedded
     private Endereco endereco;
 
+    // Versão de token: incrementa em logout-all; comparada com claim "ver" no JWT
     @Column(name = "token_version", nullable = false)
     private Integer tokenVersion = 0;
 
@@ -41,6 +46,7 @@ public class Usuarios {
         this.ativo = data.ativo();
     }
     
+    /** Incrementa a versão do token (logout-all). */
     public void bumpTokenVersion() { this.tokenVersion++; }
     public Integer getTokenVersion() { return tokenVersion; }
     public void setTokenVersion(Integer v) { this.tokenVersion = v; }

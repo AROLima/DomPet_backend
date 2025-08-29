@@ -2,73 +2,85 @@ package com.dompet.api.features.produtos.web;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional; 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import jakarta.validation.Valid;
 
 import com.dompet.api.features.produtos.domain.Categorias;
-import com.dompet.api.features.produtos.domain.Produtos;
-import com.dompet.api.features.produtos.dto.ProdutosDto;
-import com.dompet.api.features.produtos.repo.ProdutosRepository;
+import com.dompet.api.features.produtos.dto.ProdutosCreateDto;
+import com.dompet.api.features.produtos.dto.ProdutosReadDto;
+import com.dompet.api.features.produtos.dto.ProdutosUpdateDto;
+import com.dompet.api.features.produtos.service.ProdutosService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
+/**
+ * Controller fino para Produtos.
+ * - Apenas delega para ProdutosService e define as rotas/contratos HTTP.
+ * - Retorna DTOs de leitura para não vazar a entidade JPA.
+ */
 @RestController
 @RequestMapping("/produtos")
 @Tag(name = "Produtos", description = "Operações com produtos")
 public class ProdutosController {
 
-    @Autowired
-    private ProdutosRepository repository;
+    private final ProdutosService service;
+
+    public ProdutosController(ProdutosService service) {
+        this.service = service;
+    }
 
     // CREATE
     @PostMapping
     @Transactional
     @Operation(summary = "Cadastrar um produto", security = { @SecurityRequirement(name = "bearerAuth") })
-    public ResponseEntity<Produtos> cadastrarProduto(@RequestBody ProdutosDto dados) {
-        Produtos salvo = repository.save(new Produtos(dados));
+    public ResponseEntity<ProdutosReadDto> cadastrarProduto(@RequestBody @Valid ProdutosCreateDto dados) {
+        var salvo = service.create(dados);
         return ResponseEntity.ok(salvo);
     }
 
     // READ - listagem com filtros opcionais por categoria e nome
     @GetMapping
     @Operation(summary = "Listar produtos (com filtros opcionais)")
-    public List<Produtos> listarProdutos(
+    public List<ProdutosReadDto> listarProdutos(
             @RequestParam(required = false) Categorias categoria,
             @RequestParam(required = false) String nome
     ) {
-    // Se ambos presentes, prioriza filtro por categoria
-        if (categoria != null) {
-            return repository.findByCategoria(categoria);
-        }
-        if (nome != null) {
-            return repository.findByNomeContainingIgnoreCase(nome);
-        }
-        return repository.findAll();
+        return service.list(categoria, nome);
+    }
+
+    // READ - paginado com ativo=true preservando compatibilidade em nova rota
+    @GetMapping("/search")
+    @Operation(summary = "Listar produtos paginado (ativo=true) com filtros opcionais de nome e categoria")
+    public Page<ProdutosReadDto> listarProdutosPaginado(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) Categorias categoria,
+            Pageable pageable
+    ) {
+        return service.search(nome, categoria, pageable);
     }
 
     // READ - por ID (aceita só dígitos para evitar conflito com outras rotas)
     @GetMapping("/{id:\\d+}")
     @Operation(summary = "Buscar produto por ID")
-    public ResponseEntity<Produtos> buscarProdutoPorId(@PathVariable Long id) {
-        return repository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ProdutosReadDto> buscarProdutoPorId(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(service.getById(id));
+        } catch (jakarta.persistence.EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    // UPDATE (parcial, baseado no seu atualizarInformacoes do entity)
+    // UPDATE (parcial, baseado no método atualizarInformacoes da entidade)
     @PutMapping("/{id:\\d+}")
     @Transactional
     @Operation(summary = "Atualizar um produto", security = { @SecurityRequirement(name = "bearerAuth") })
-    public ResponseEntity<Void> atualizarProduto(@PathVariable Long id, @RequestBody ProdutosDto dados) {
-    java.util.Optional<Produtos> opt = repository.findById(id);
-        if (opt.isEmpty()) return ResponseEntity.notFound().build();
-
-    Produtos produto = opt.get();
-        produto.atualizarInformacoes(dados); // entity já trata null/0
-        // como está em @Transactional e é entidade gerenciada, não precisa chamar save
+    public ResponseEntity<Void> atualizarProduto(@PathVariable Long id, @RequestBody @Valid ProdutosUpdateDto dados) {
+        service.update(id, dados);
         return ResponseEntity.noContent().build();
     }
 
@@ -77,15 +89,11 @@ public class ProdutosController {
     @Transactional
     @Operation(summary = "Excluir (lógico) um produto", security = { @SecurityRequirement(name = "bearerAuth") })
     public ResponseEntity<Void> excluirProduto(@PathVariable Long id) {
-    java.util.Optional<Produtos> opt = repository.findById(id);
-        if (opt.isEmpty()) return ResponseEntity.notFound().build();
-
-    Produtos produto = opt.get();
-    produto.excluir();
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    // Utilitário opcional: lista os valores possíveis do enum (bom pra front)
+    // Utilitário: lista os valores possíveis do enum (útil para front)
     @GetMapping("/categorias")
     @Operation(summary = "Listar categorias")
     public Categorias[] listarCategorias() {

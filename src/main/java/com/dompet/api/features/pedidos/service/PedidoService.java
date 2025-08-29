@@ -20,6 +20,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
+/**
+ * Regras de negócio de pedidos (checkout e gestão de status).
+ * - Valida estoque no momento do checkout e registra snapshot de preços
+ * - Fecha o carrinho e limpa itens após checkout
+ * - Implementa transições de status com reestoque em cancelamentos iniciais
+ */
 @Service
 public class PedidoService {
     private final PedidosRepository pedidosRepo;
@@ -35,13 +41,18 @@ public class PedidoService {
         this.carrinhoRepo = carrinhoRepo;
     }
 
+    /**
+     * Executa o checkout do carrinho aberto do usuário.
+     * Verifica estoque (ativo/quantidade), cria pedido com snapshot de preços, debita estoque,
+     * fecha o carrinho e retorna o DTO do pedido.
+     */
     @Transactional
     public PedidoResponseDto checkout(String email, CheckoutDto dto) {
         Carrinho carrinho = carrinhoRepo.findByUsuarioEmailAndStatus(email, CartStatus.ABERTO)
                 .orElseThrow(() -> new IllegalArgumentException("Carrinho vazio"));
         if (carrinho.getItens().isEmpty()) throw new IllegalArgumentException("Carrinho vazio");
 
-        // Recarregar e validar estoque
+    // Recarregar e validar estoque
         List<String> semEstoque = new ArrayList<>();
         Map<Long, Produtos> produtosById = new HashMap<>();
         carrinho.getItens().forEach(item -> {
@@ -56,7 +67,7 @@ public class PedidoService {
             throw new InsufficientStockException("Estoque insuficiente para alguns itens", semEstoque);
         }
 
-        // Criar pedido
+    // Criar pedido
         Usuarios usuario = usuariosRepo.findByEmail(email).orElseThrow(() -> new NotFoundException("Usuário"));
         Pedidos pedido = new Pedidos();
         pedido.setUsuario(usuario);
@@ -71,7 +82,7 @@ public class PedidoService {
             ip.setPedido(pedido);
             ip.setProduto(p);
             ip.setQuantidade(item.getQuantidade());
-            ip.setPrecoUnitario(p.getPreco()); // snapshot
+            ip.setPrecoUnitario(p.getPreco()); // snapshot do preço no momento do pedido
             ip.calcularSubtotal();
             itensPedido.add(ip);
             total = total.add(ip.getSubtotal() == null ? BigDecimal.ZERO : ip.getSubtotal());
@@ -88,7 +99,7 @@ public class PedidoService {
             f.set(pedido, total);
         } catch (NoSuchFieldException | IllegalAccessException ignored) {}
 
-        // Fechar carrinho
+    // Fechar carrinho
         carrinho.setStatus(CartStatus.FECHADO);
         carrinho.getItens().clear();
 
@@ -98,6 +109,7 @@ public class PedidoService {
         return toDto(pedido);
     }
 
+    /** Busca pedido por ID; se não for ADMIN, valida que o dono é o solicitante. */
     @Transactional(readOnly = true)
     public PedidoResponseDto getById(String email, Long id, boolean isAdmin) {
         var pedido = pedidosRepo.findById(id).orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
@@ -107,11 +119,13 @@ public class PedidoService {
         return toDto(pedido);
     }
 
+    /** Lista paginada dos pedidos do usuário autenticado. */
     @Transactional(readOnly = true)
     public Page<PedidoResponseDto> listMine(String email, Pageable p) {
         return pedidosRepo.findByUsuarioEmail(email, p).map(this::toDto);
     }
 
+    /** Atualiza status de pedido como ADMIN; restaura estoque ao cancelar antes de envio. */
     @Transactional
     public void updateStatusAsAdmin(Long pedidoId, StatusPedido novo) {
         var pedido = pedidosRepo.findById(pedidoId).orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
@@ -133,6 +147,7 @@ public class PedidoService {
         pedido.setStatus(novo);
     }
 
+    /** Regras de transição de status. */
     private boolean isTransitionAllowed(StatusPedido atual, StatusPedido novo) {
         return switch (atual) {
             case AGUARDANDO_PAGAMENTO -> (novo == StatusPedido.PAGO || novo == StatusPedido.CANCELADO);
@@ -142,6 +157,7 @@ public class PedidoService {
         };
     }
 
+    /** Mapeia entidade de pedido para DTO de resposta. */
     private PedidoResponseDto toDto(Pedidos p) {
         var items = new ArrayList<PedidoResponseDto.ItemDto>();
         if (p.getItens() != null) {

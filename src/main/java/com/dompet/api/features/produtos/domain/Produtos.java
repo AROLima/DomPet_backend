@@ -5,6 +5,11 @@ import com.dompet.api.features.produtos.dto.ProdutosDto;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * Entidade JPA de Produtos.
+ * Campos principais: nome, descrição, preço, estoque, imagem, categoria e flag ativo.
+ * Possui helpers para atualização parcial e exclusão lógica (ativo=false).
+ */
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Entity
@@ -16,7 +21,7 @@ public class Produtos {
 
     private String nome;
 
-    @Lob // se for curta, pode remover
+    @Lob // descrição longa; se for curta, pode remover @Lob
     private String descricao;
 
     @Column(precision = 10, scale = 2, nullable = false)
@@ -30,7 +35,7 @@ public class Produtos {
 
     private Boolean ativo = true;
 
-    // Construtor que recebe o DTO (como você queria)
+    // Construtor prático a partir de um DTO básico
     public Produtos(ProdutosDto dados){
         this.nome = dados.nome();
         this.descricao = dados.descricao();
@@ -41,6 +46,7 @@ public class Produtos {
         this.ativo = dados.ativo() != null ? dados.ativo() : Boolean.TRUE;
     }
 
+    /** Atualiza apenas campos presentes no DTO (parcial). */
     public void atualizarInformacoes(ProdutosDto dados) {
         if (dados.nome() != null)        this.nome = dados.nome();
         if (dados.descricao() != null)   this.descricao = dados.descricao();
@@ -51,7 +57,7 @@ public class Produtos {
         if (dados.ativo() != null)       this.ativo = dados.ativo();
     }
 
-    // helpers
+    // helpers de status
     public void excluir()   { this.ativo = false; }
     public void restaurar() { this.ativo = true;  }
 }

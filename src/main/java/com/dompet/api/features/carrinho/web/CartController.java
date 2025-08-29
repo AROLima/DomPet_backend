@@ -10,6 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Endpoints de carrinho associados ao usuário autenticado (via Authentication).
+ * Operações CRUD clássicas de itens e limpeza.
+ */
 @RestController
 @RequestMapping("/cart")
 @Tag(name = "Carrinho", description = "Operações de carrinho do usuário")

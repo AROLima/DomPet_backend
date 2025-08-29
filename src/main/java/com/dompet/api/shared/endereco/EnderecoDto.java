@@ -1,5 +1,6 @@
 package com.dompet.api.shared.endereco;
 
+/** DTO de endereço com conversões para/desde a entidade embutida. */
 public record EnderecoDto(
     String rua,
     String numero,
@@ -8,10 +9,12 @@ public record EnderecoDto(
     String cidade,
     String complemento
 ) {
+    /** Cria um DTO a partir da entidade (null-safe). */
     public static EnderecoDto from(Endereco e) {
         if (e == null) return null;
         return new EnderecoDto(e.getRua(), e.getNumero(), e.getBairro(), e.getCep(), e.getCidade(), e.getComplemento());
     }
+    /** Converte o DTO em entidade embutida. */
     public Endereco toEntity() {
         var e = new Endereco();
         e.setRua(rua);
