@@ -18,6 +18,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import javax.crypto.SecretKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 /**
@@ -27,22 +29,31 @@ import javax.crypto.SecretKey;
  */
 public class TokenService {
 
+  private static final Logger log = LoggerFactory.getLogger(TokenService.class);
   private final SecretKey key;
   private final long expirationMs;
   private final UsuariosRepository usuariosRepo;
 
   public TokenService(
-      @Value("${app.jwt.secret}") String secret,                 // Base64 recomendado
+      @Value("${app.jwt.secret:}") String secret,                 // Base64 recomendado; vazio => gera chave volátil p/ DEV
       @Value("${app.jwt.expiration-ms}") long expirationMs,
       UsuariosRepository usuariosRepo) {
 
     byte[] raw;
-    try { // tenta Base64 primeiro
-      raw = Base64.getDecoder().decode(secret);
-    } catch (IllegalArgumentException ex) {
-      raw = secret.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    if (secret == null || secret.isBlank()) {
+      // Gera chave volátil (não persiste) para ambiente DEV quando a variável não foi definida.
+      raw = new byte[64];
+      java.security.SecureRandom rand = new java.security.SecureRandom();
+      rand.nextBytes(raw);
+      log.warn("APP_JWT_SECRET não definido. Gerando chave HS256 volátil para DEV. Defina APP_JWT_SECRET para estabilidade dos tokens.");
+    } else {
+      try { // tenta Base64 primeiro
+        raw = Base64.getDecoder().decode(secret);
+      } catch (IllegalArgumentException ex) {
+        raw = secret.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+      }
     }
-  if (raw.length < 32) {
+    if (raw.length < 32) {
       throw new IllegalArgumentException("app.jwt.secret precisa ter >= 32 bytes (HS256). Gere em Base64.");
     }
     this.key = Keys.hmacShaKeyFor(raw);

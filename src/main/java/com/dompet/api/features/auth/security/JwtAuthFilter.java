@@ -3,6 +3,8 @@ package com.dompet.api.features.auth.security;
 import java.io.IOException;
 
 import org.springframework.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -31,6 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
   private final TokenService tokenService;
   private final UsuariosRepository usuariosRepo;
+  private static final Logger log = LoggerFactory.getLogger(JwtAuthFilter.class);
 
   public JwtAuthFilter(TokenService tokenService, UsuariosRepository usuariosRepo) {
     this.tokenService = tokenService;
@@ -58,6 +61,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       // 3) Confere se o usuário existe e se a versão do token bate (logout-all)
       var user = usuariosRepo.findByEmail(email).orElse(null);
       if (user == null || !user.getTokenVersion().equals(verToken)) {
+        log.warn("JWT inválido: {} (user encontrado? {} | verToken={}, verDb={})", email,
+            user != null, verToken, user != null ? user.getTokenVersion() : null);
         response.setStatus(HttpStatus.UNAUTHORIZED.value()); // token antigo/inválido
         return;
       }
@@ -69,6 +74,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
       chain.doFilter(request, response);
     } catch (JwtException e) {
+      log.warn("Falha ao validar JWT: {}", e.getMessage());
       response.setStatus(HttpStatus.UNAUTHORIZED.value());
     }
   }

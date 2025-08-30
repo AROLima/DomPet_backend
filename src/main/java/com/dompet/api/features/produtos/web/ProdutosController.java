@@ -17,6 +17,12 @@ import com.dompet.api.features.produtos.service.ProdutosService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import org.springframework.data.domain.PageRequest;
 
 /**
  * Controller fino para Produtos.
@@ -38,14 +44,21 @@ public class ProdutosController {
     @PostMapping
     @Transactional
     @Operation(summary = "Cadastrar um produto", security = { @SecurityRequirement(name = "bearerAuth") })
+    @ApiResponse(responseCode = "201", description = "Criado",
+        content = @Content(schema = @Schema(implementation = ProdutosReadDto.class),
+            examples = @ExampleObject(value = "{\n  \"id\":1,\n  \"nome\":\"Ração X\",\n  \"preco\": 199.9,\n  \"estoque\": 10\n}")))
     public ResponseEntity<ProdutosReadDto> cadastrarProduto(@RequestBody @Valid ProdutosCreateDto dados) {
-        var salvo = service.create(dados);
-        return ResponseEntity.ok(salvo);
+    var salvo = service.create(dados);
+    var location = java.net.URI.create("/produtos/" + salvo.id());
+    return ResponseEntity.created(location).body(salvo);
     }
 
     // READ - listagem com filtros opcionais por categoria e nome
     @GetMapping
     @Operation(summary = "Listar produtos (com filtros opcionais)")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProdutosReadDto.class)),
+            examples = @ExampleObject(value = "[{\n  \"id\":1,\n  \"nome\":\"Ração X\",\n  \"preco\":199.9,\n  \"estoque\":10\n}]")))
     public List<ProdutosReadDto> listarProdutos(
             @RequestParam(required = false) Categorias categoria,
             @RequestParam(required = false) String nome
@@ -56,6 +69,9 @@ public class ProdutosController {
     // READ - paginado com ativo=true preservando compatibilidade em nova rota
     @GetMapping("/search")
     @Operation(summary = "Listar produtos paginado (ativo=true) com filtros opcionais de nome e categoria")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(mediaType = "application/json",
+            examples = @ExampleObject(value = "{\n  \"content\":[{\n    \"id\":1,\n    \"nome\":\"Ração X\",\n    \"preco\":199.9,\n    \"estoque\":10\n  }],\n  \"totalElements\":1,\n  \"totalPages\":1,\n  \"size\":20,\n  \"number\":0\n}")))
     public Page<ProdutosReadDto> listarProdutosPaginado(
             @RequestParam(required = false) String nome,
             @RequestParam(required = false) Categorias categoria,
@@ -67,9 +83,19 @@ public class ProdutosController {
     // READ - por ID (aceita só dígitos para evitar conflito com outras rotas)
     @GetMapping("/{id:\\d+}")
     @Operation(summary = "Buscar produto por ID")
-    public ResponseEntity<ProdutosReadDto> buscarProdutoPorId(@PathVariable Long id) {
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = ProdutosReadDto.class)))
+    @ApiResponse(responseCode = "304", description = "Not Modified")
+    @ApiResponse(responseCode = "404", description = "Not Found")
+    public ResponseEntity<ProdutosReadDto> buscarProdutoPorId(@PathVariable Long id, @RequestHeader(value = "If-None-Match", required = false) String inm) {
         try {
-            return ResponseEntity.ok(service.getById(id));
+            var dto = service.getById(id);
+            // ETag simples baseado nos campos principais
+            var etag = '"' + Integer.toHexString(java.util.Objects.hash(dto.id(), dto.nome(), dto.preco(), dto.estoque(), dto.imagemUrl())) + '"';
+            if (inm != null && inm.equals(etag)) {
+                return ResponseEntity.status(304).eTag(etag).build();
+            }
+            return ResponseEntity.ok().eTag(etag).body(dto);
         } catch (jakarta.persistence.EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
@@ -79,6 +105,7 @@ public class ProdutosController {
     @PutMapping("/{id:\\d+}")
     @Transactional
     @Operation(summary = "Atualizar um produto", security = { @SecurityRequirement(name = "bearerAuth") })
+    @ApiResponse(responseCode = "204", description = "Atualizado")
     public ResponseEntity<Void> atualizarProduto(@PathVariable Long id, @RequestBody @Valid ProdutosUpdateDto dados) {
         service.update(id, dados);
         return ResponseEntity.noContent().build();
@@ -88,6 +115,7 @@ public class ProdutosController {
     @DeleteMapping("/{id:\\d+}")
     @Transactional
     @Operation(summary = "Excluir (lógico) um produto", security = { @SecurityRequirement(name = "bearerAuth") })
+    @ApiResponse(responseCode = "204", description = "Excluído")
     public ResponseEntity<Void> excluirProduto(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
@@ -96,7 +124,22 @@ public class ProdutosController {
     // Utilitário: lista os valores possíveis do enum (útil para front)
     @GetMapping("/categorias")
     @Operation(summary = "Listar categorias")
+    @ApiResponse(responseCode = "200", description = "OK")
     public Categorias[] listarCategorias() {
         return Categorias.values();
+    }
+
+    // SUGESTÕES (autocomplete leve) - adição compatível
+    @GetMapping("/suggestions")
+    @Operation(summary = "Sugestões de produtos (autocomplete leve)")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(mediaType = "application/json",
+            examples = @ExampleObject(value = "[{\n  \"id\":1,\n  \"nome\":\"Ração X\",\n  \"preco\":199.9,\n  \"thumbnailUrl\":\"https://...\"\n}]")))
+    public List<ProdutosReadDto> suggestions(
+            @RequestParam(name = "q", required = false) String q,
+            @RequestParam(name = "limit", defaultValue = "8") int limit
+    ) {
+        var pageable = PageRequest.of(0, Math.max(1, Math.min(limit, 50)));
+        return service.search(q, null, pageable).getContent();
     }
 }

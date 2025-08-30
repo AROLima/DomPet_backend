@@ -3,8 +3,9 @@ package com.dompet.api.features.carrinho.web;
 import com.dompet.api.features.carrinho.dto.CarrinhoDto;
 import com.dompet.api.features.carrinho.service.CarrinhoService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,7 +35,11 @@ public class CarrinhoController {
     @Operation(summary = "Alterar quantidade por delta", description = "delta positivo incrementa, negativo decrementa",
             security = { @SecurityRequirement(name = "bearerAuth") })
     @ApiResponse(responseCode = "200", description = "Carrinho atualizado",
-            content = @Content(schema = @Schema(implementation = CarrinhoDto.class)))
+            content = @Content(schema = @Schema(implementation = CarrinhoDto.class),
+                examples = @ExampleObject(value = "{\n  \"id\":1,\n  \"itens\":[{\n    \"produtoId\":1,\n    \"nomeProduto\":\"Ração X\",\n    \"unitPrice\":199.9,\n    \"quantity\":3,\n    \"lineTotal\":599.7\n  }],\n  \"total\":599.7\n}")))
+    @ApiResponse(responseCode = "400", description = "Delta inválido")
+    @ApiResponse(responseCode = "404", description = "Carrinho/Produto não encontrado")
+    @ApiResponse(responseCode = "409", description = "Estoque insuficiente")
     public CarrinhoDto alterarQuantidade(
             @PathVariable Long carrinhoId,
             @PathVariable Long produtoId,
@@ -47,6 +52,8 @@ public class CarrinhoController {
         @PostMapping("/{carrinhoId}/itens/{produtoId}/incrementar")
     @Operation(summary = "Incrementar quantidade",
             security = { @SecurityRequirement(name = "bearerAuth") })
+    @ApiResponse(responseCode = "200", description = "Carrinho atualizado")
+    @ApiResponse(responseCode = "409", description = "Estoque insuficiente")
     public CarrinhoDto incrementar(
             @PathVariable Long carrinhoId,
             @PathVariable Long produtoId,
@@ -59,6 +66,8 @@ public class CarrinhoController {
         @PostMapping("/{carrinhoId}/itens/{produtoId}/decrementar")
     @Operation(summary = "Decrementar quantidade",
             security = { @SecurityRequirement(name = "bearerAuth") })
+    @ApiResponse(responseCode = "200", description = "Carrinho atualizado")
+    @ApiResponse(responseCode = "400", description = "Delta inválido")
     public CarrinhoDto decrementar(
             @PathVariable Long carrinhoId,
             @PathVariable Long produtoId,

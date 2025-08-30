@@ -90,14 +90,9 @@ public class PedidoService {
             // Decrementar estoque
             p.setEstoque(p.getEstoque() - item.getQuantidade());
         }
-        pedido.setItens(itensPedido);
-        // Persist subtotal inside items if not already computed
-        // Total field may not exist yet in entity; adapt if you add it later
-        try { // if Pedidos has a total field, set it; ignore otherwise
-            var f = Pedidos.class.getDeclaredField("total");
-            f.setAccessible(true);
-            f.set(pedido, total);
-        } catch (NoSuchFieldException | IllegalAccessException ignored) {}
+    pedido.setItens(itensPedido);
+    // Persiste o total calculado no próprio pedido
+    pedido.setTotal(total);
 
     // Fechar carrinho
         carrinho.setStatus(CartStatus.FECHADO);
@@ -159,27 +154,32 @@ public class PedidoService {
 
     /** Mapeia entidade de pedido para DTO de resposta. */
     private PedidoResponseDto toDto(Pedidos p) {
-        var items = new ArrayList<PedidoResponseDto.ItemDto>();
+    var items = new ArrayList<PedidoResponseDto.ItemDto>();
         if (p.getItens() != null) {
             for (var item : p.getItens()) {
+        // subtotal é @Transient; pode vir nulo após carregar do banco.
+        BigDecimal sub = item.getSubtotal();
+        if (sub == null && item.getPrecoUnitario() != null && item.getQuantidade() != null) {
+            sub = item.getPrecoUnitario().multiply(BigDecimal.valueOf(item.getQuantidade()))
+                .setScale(2, RoundingMode.HALF_UP);
+        }
                 items.add(new PedidoResponseDto.ItemDto(
                         item.getProduto() != null ? item.getProduto().getId() : null,
                         item.getProduto() != null ? item.getProduto().getNome() : null,
                         item.getPrecoUnitario(),
                         item.getQuantidade(),
-                        item.getSubtotal()
+            sub
                 ));
             }
         }
-        BigDecimal total = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+    // Usa o total persistido quando disponível; caso contrário, soma os subtotais mapeados
+    BigDecimal total = p.getTotal();
+    if (total == null) {
+        total = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         for (var it : items) { if (it.subtotal() != null) total = total.add(it.subtotal()); }
+    }
 
-        Date createdAt = null;
-        try {
-            var f = Pedidos.class.getDeclaredField("createdAt");
-            f.setAccessible(true);
-            createdAt = (Date) f.get(p);
-        } catch (NoSuchFieldException | IllegalAccessException ignored) {}
+    Date createdAt = p.getCreatedAt();
 
     return new PedidoResponseDto(p.getId(),
                 p.getStatus() != null ? p.getStatus().name() : null,
