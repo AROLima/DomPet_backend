@@ -103,6 +103,10 @@ public class SecurityConfig {
     cfg.addAllowedMethod("PATCH");
     cfg.addAllowedMethod("DELETE");
     cfg.addAllowedMethod("OPTIONS");
+  // Permitir que o front leia cabeçalhos úteis nas respostas (Flutter Web/browser)
+  cfg.addExposedHeader("ETag");
+  cfg.addExposedHeader("Location");
+  cfg.addExposedHeader("X-API-Version");
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", cfg);
     return source;

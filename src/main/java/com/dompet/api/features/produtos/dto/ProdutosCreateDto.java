@@ -12,5 +12,6 @@ public record ProdutosCreateDto(
     @NotNull(message = "estoque é obrigatório") @PositiveOrZero(message = "estoque não pode ser negativo") Integer estoque,
     String imagemUrl,
     @NotNull(message = "categoria é obrigatória") Categorias categoria,
-    Boolean ativo
+    Boolean ativo,
+    @Size(max = 60) String sku
 ) {}

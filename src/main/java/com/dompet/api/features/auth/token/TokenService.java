@@ -61,6 +61,11 @@ public class TokenService {
     this.usuariosRepo = usuariosRepo;
   }
 
+  /** Expiração do token em milissegundos (para clientes móveis/web). */
+  public long getExpirationMs() {
+    return expirationMs;
+  }
+
   /**
    * Gera JWT com:
    * - sub = email (subject)

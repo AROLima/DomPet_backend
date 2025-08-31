@@ -12,5 +12,6 @@ public record ProdutosReadDto(
     Integer estoque,
     String imagemUrl,
     Categorias categoria,
-    Boolean ativo
+    Boolean ativo,
+    String sku
 ) {}

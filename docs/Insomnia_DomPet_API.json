@@ -1,7 +1,7 @@
 {
   "_type": "export",
   "__export_format": 4,
-  "__export_date": "2025-08-28T00:00:00.000Z",
+  "__export_date": "2025-08-30T00:00:00.000Z",
   "__export_source": "generated.by.github.copilot",
   "resources": [
     {
@@ -51,6 +51,17 @@
       ]
     },
     {
+      "_id": "req_auth_refresh",
+      "_type": "request",
+      "parentId": "wrk_dompet_api",
+      "name": "Auth - Refresh",
+      "method": "POST",
+      "url": "{{ base_url }}/auth/refresh",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ]
+    },
+    {
       "_id": "req_auth_logout",
       "_type": "request",
       "parentId": "wrk_dompet_api",
@@ -88,12 +99,32 @@
       "url": "{{ base_url }}/produtos"
     },
     {
+      "_id": "req_produtos_search",
+      "_type": "request",
+      "parentId": "fld_produtos",
+      "name": "GET /produtos/search (paginado)",
+      "method": "GET",
+      "url": "{{ base_url }}/produtos/search?nome=racao&size=10&page=0"
+    },
+    {
       "_id": "req_produtos_get_id",
       "_type": "request",
       "parentId": "fld_produtos",
       "name": "GET /produtos/{id} (público)",
       "method": "GET",
       "url": "{{ base_url }}/produtos/1"
+      ,
+      "headers": [
+        { "name": "If-None-Match", "value": "\"abcdef\"", "disabled": true }
+      ]
+    },
+    {
+      "_id": "req_produtos_suggestions",
+      "_type": "request",
+      "parentId": "fld_produtos",
+      "name": "GET /produtos/suggestions",
+      "method": "GET",
+      "url": "{{ base_url }}/produtos/suggestions?q=ra&limit=5"
     },
     {
       "_id": "req_produtos_create",
@@ -109,7 +140,17 @@
       "headers": [
         { "name": "Content-Type", "value": "application/json" },
         { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
-      ]
+  ],
+  "description": "Observação: a resposta 201 incluirá cabeçalho Location com a URL do recurso criado."
+    }
+    ,
+    {
+      "_id": "req_produtos_categorias",
+      "_type": "request",
+      "parentId": "fld_produtos",
+      "name": "GET /produtos/categorias (público)",
+      "method": "GET",
+      "url": "{{ base_url }}/produtos/categorias"
     }
     ,
     {
@@ -199,11 +240,27 @@
       "url": "{{ base_url }}/pedidos/checkout",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"enderecoEntrega\": {\n    \"logradouro\": \"Rua A\",\n    \"numero\": \"100\",\n    \"complemento\": \"ap 12\",\n    \"bairro\": \"Centro\",\n    \"cidade\": \"SP\",\n    \"estado\": \"SP\",\n    \"cep\": \"01000-000\"\n  },\n  \"observacoes\": \"Entregar à tarde\",\n  \"metodoPagamento\": \"CARTAO\"\n}"
+  "text": "{\n  \"enderecoEntrega\": {\n    \"rua\": \"Rua A\",\n    \"numero\": \"100\",\n    \"bairro\": \"Centro\",\n    \"cep\": \"01000-000\",\n    \"cidade\": \"São Paulo\",\n    \"complemento\": \"ap 12\"\n  },\n  \"observacoes\": \"Entregar à tarde\",\n  \"metodoPagamento\": \"CARTAO\"\n}"
       },
       "headers": [
   { "name": "Content-Type", "value": "application/json" },
   { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ]
+    },
+    {
+      "_id": "req_pedidos_post_alias",
+      "_type": "request",
+      "parentId": "fld_pedidos",
+      "name": "POST /pedidos (alias)",
+      "method": "POST",
+      "url": "{{ base_url }}/pedidos",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"enderecoEntrega\": {\n    \"rua\": \"Rua A\",\n    \"numero\": \"100\",\n    \"bairro\": \"Centro\",\n    \"cep\": \"01000-000\",\n    \"cidade\": \"São Paulo\",\n    \"complemento\": \"ap 12\"\n  },\n  \"observacoes\": \"Entregar à tarde\",\n  \"metodoPagamento\": \"CARTAO\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
       ]
     },
     {
@@ -234,8 +291,13 @@
       "parentId": "fld_pedidos",
       "name": "PATCH /pedidos/{id}/status (ADMIN)",
       "method": "PATCH",
-      "url": "{{ base_url }}/pedidos/1/status?novo=PAGO",
+      "url": "{{ base_url }}/pedidos/1/status",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"PAGO\"\n}"
+      },
       "headers": [
+        { "name": "Content-Type", "value": "application/json" },
         { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
       ]
     }

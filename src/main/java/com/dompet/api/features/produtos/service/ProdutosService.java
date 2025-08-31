@@ -26,11 +26,12 @@ public class ProdutosService {
 
     // Mapeamentos entre entidade e DTOs
     private ProdutosReadDto toDto(Produtos p) {
-        return new ProdutosReadDto(p.getId(), p.getNome(), p.getDescricao(), p.getPreco(), p.getEstoque(), p.getImagemUrl(), p.getCategoria(), p.getAtivo());
+        return new ProdutosReadDto(p.getId(), p.getNome(), p.getDescricao(), p.getPreco(), p.getEstoque(), p.getImagemUrl(), p.getCategoria(), p.getAtivo(), p.getSku());
     }
 
     private Produtos fromCreate(ProdutosCreateDto dto) {
-        return new Produtos(new ProdutosDto(dto.nome(), dto.descricao(), dto.preco(), dto.estoque(), dto.imagemUrl(), dto.ativo(), dto.categoria()));
+        var price = dto.preco() != null ? dto.preco().setScale(2, java.math.RoundingMode.HALF_UP) : null;
+        return new Produtos(new ProdutosDto(dto.nome(), dto.descricao(), price, dto.estoque(), dto.imagemUrl(), dto.ativo(), dto.categoria(), dto.sku()));
     }
 
     /**
@@ -83,7 +84,8 @@ public class ProdutosService {
     @Transactional
     public void update(Long id, ProdutosUpdateDto dto) {
         var p = repo.findById(id).orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
-        var base = new ProdutosDto(dto.nome(), dto.descricao(), dto.preco(), dto.estoque(), dto.imagemUrl(), dto.ativo(), dto.categoria());
+    var price = dto.preco() != null ? dto.preco().setScale(2, java.math.RoundingMode.HALF_UP) : null;
+    var base = new ProdutosDto(dto.nome(), dto.descricao(), price, dto.estoque(), dto.imagemUrl(), dto.ativo(), dto.categoria(), dto.sku());
         p.atualizarInformacoes(base);
     }
 

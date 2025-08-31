@@ -57,7 +57,7 @@ class ProdutosControllerTest {
     @Test
     @DisplayName("GET /produtos deve retornar lista de produtos")
     void listarProdutos_ok() throws Exception {
-    var dto = new ProdutosReadDto(1L, "Ração", "Premium", new BigDecimal("10.50"), 5, null, Categorias.RACAO, true);
+    var dto = new ProdutosReadDto(1L, "Ração", "Premium", new BigDecimal("10.50"), 5, null, Categorias.RACAO, true, "SKU-1");
         given(service.list(null, null)).willReturn(List.of(dto));
 
         mvc.perform(get("/produtos").accept(MediaType.APPLICATION_JSON))
@@ -71,7 +71,7 @@ class ProdutosControllerTest {
     @Test
     @DisplayName("GET /produtos/search deve retornar página de produtos ativos")
     void listarProdutosPaginado_ok() throws Exception {
-    var dto = new ProdutosReadDto(1L, "Ração", "Premium", new BigDecimal("10.50"), 5, null, Categorias.RACAO, true);
+    var dto = new ProdutosReadDto(1L, "Ração", "Premium", new BigDecimal("10.50"), 5, null, Categorias.RACAO, true, "SKU-1");
         Page<ProdutosReadDto> page = new PageImpl<>(List.of(dto), PageRequest.of(0, 20), 1);
         given(service.search(any(), any(), any())).willReturn(page);
 

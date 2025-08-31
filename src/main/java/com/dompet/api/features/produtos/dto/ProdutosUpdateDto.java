@@ -12,5 +12,6 @@ public record ProdutosUpdateDto(
     @PositiveOrZero(message = "estoque não pode ser negativo") Integer estoque,
     String imagemUrl,
     Categorias categoria,
-    Boolean ativo
+    Boolean ativo,
+    @Size(max = 60) String sku
 ) {}

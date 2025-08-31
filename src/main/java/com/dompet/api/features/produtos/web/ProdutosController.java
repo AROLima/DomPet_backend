@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.headers.Header;
 import org.springframework.data.domain.PageRequest;
 
 /**
@@ -46,7 +48,8 @@ public class ProdutosController {
     @Operation(summary = "Cadastrar um produto", security = { @SecurityRequirement(name = "bearerAuth") })
     @ApiResponse(responseCode = "201", description = "Criado",
         content = @Content(schema = @Schema(implementation = ProdutosReadDto.class),
-            examples = @ExampleObject(value = "{\n  \"id\":1,\n  \"nome\":\"Ração X\",\n  \"preco\": 199.9,\n  \"estoque\": 10\n}")))
+            examples = @ExampleObject(value = "{\n  \"id\":1,\n  \"nome\":\"Ração X\",\n  \"descricao\":\"Sabor frango\",\n  \"preco\":199.9,\n  \"estoque\":10,\n  \"imagemUrl\":\"https://.../racao.png\",\n  \"categoria\":\"RACAO\",\n  \"ativo\":true,\n  \"sku\":\"RACAO-X-10KG\"\n}")))
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProdutosReadDto> cadastrarProduto(@RequestBody @Valid ProdutosCreateDto dados) {
     var salvo = service.create(dados);
     var location = java.net.URI.create("/produtos/" + salvo.id());
@@ -58,7 +61,7 @@ public class ProdutosController {
     @Operation(summary = "Listar produtos (com filtros opcionais)")
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProdutosReadDto.class)),
-            examples = @ExampleObject(value = "[{\n  \"id\":1,\n  \"nome\":\"Ração X\",\n  \"preco\":199.9,\n  \"estoque\":10\n}]")))
+            examples = @ExampleObject(value = "[{\n  \"id\":1,\n  \"nome\":\"Ração X\",\n  \"descricao\":\"Sabor frango\",\n  \"preco\":199.9,\n  \"estoque\":10,\n  \"imagemUrl\":\"https://.../racao.png\",\n  \"categoria\":\"RACAO\",\n  \"ativo\":true,\n  \"sku\":\"RACAO-X-10KG\"\n}]")))
     public List<ProdutosReadDto> listarProdutos(
             @RequestParam(required = false) Categorias categoria,
             @RequestParam(required = false) String nome
@@ -71,7 +74,7 @@ public class ProdutosController {
     @Operation(summary = "Listar produtos paginado (ativo=true) com filtros opcionais de nome e categoria")
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(mediaType = "application/json",
-            examples = @ExampleObject(value = "{\n  \"content\":[{\n    \"id\":1,\n    \"nome\":\"Ração X\",\n    \"preco\":199.9,\n    \"estoque\":10\n  }],\n  \"totalElements\":1,\n  \"totalPages\":1,\n  \"size\":20,\n  \"number\":0\n}")))
+            examples = @ExampleObject(value = "{\n  \"content\":[{\n    \"id\":1,\n    \"nome\":\"Ração X\",\n    \"descricao\":\"Sabor frango\",\n    \"preco\":199.9,\n    \"estoque\":10,\n    \"imagemUrl\":\"https://.../racao.png\",\n    \"categoria\":\"RACAO\",\n    \"ativo\":true,\n    \"sku\":\"RACAO-X-10KG\"\n  }],\n  \"totalElements\":1,\n  \"totalPages\":1,\n  \"size\":20,\n  \"number\":0\n}")))
     public Page<ProdutosReadDto> listarProdutosPaginado(
             @RequestParam(required = false) String nome,
             @RequestParam(required = false) Categorias categoria,
@@ -84,8 +87,11 @@ public class ProdutosController {
     @GetMapping("/{id:\\d+}")
     @Operation(summary = "Buscar produto por ID")
     @ApiResponse(responseCode = "200", description = "OK",
-        content = @Content(schema = @Schema(implementation = ProdutosReadDto.class)))
-    @ApiResponse(responseCode = "304", description = "Not Modified")
+        headers = { @Header(name = "ETag", description = "Entity tag para conditional GETs", schema = @Schema(type = "string")) },
+        content = @Content(
+            schema = @Schema(implementation = ProdutosReadDto.class),
+            examples = @ExampleObject(value = "{\n  \"id\":1,\n  \"nome\":\"Ração X\",\n  \"descricao\":\"Sabor frango\",\n  \"preco\":199.9,\n  \"estoque\":10,\n  \"imagemUrl\":\"https://.../racao.png\",\n  \"categoria\":\"RACAO\",\n  \"ativo\":true,\n  \"sku\":\"RACAO-X-10KG\"\n}")))
+    @ApiResponse(responseCode = "304", description = "Not Modified (If-None-Match igual ao ETag)")
     @ApiResponse(responseCode = "404", description = "Not Found")
     public ResponseEntity<ProdutosReadDto> buscarProdutoPorId(@PathVariable Long id, @RequestHeader(value = "If-None-Match", required = false) String inm) {
         try {
@@ -105,10 +111,13 @@ public class ProdutosController {
     @PutMapping("/{id:\\d+}")
     @Transactional
     @Operation(summary = "Atualizar um produto", security = { @SecurityRequirement(name = "bearerAuth") })
-    @ApiResponse(responseCode = "204", description = "Atualizado")
-    public ResponseEntity<Void> atualizarProduto(@PathVariable Long id, @RequestBody @Valid ProdutosUpdateDto dados) {
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(schema = @Schema(implementation = ProdutosReadDto.class)))
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ProdutosReadDto> atualizarProduto(@PathVariable Long id, @RequestBody @Valid ProdutosUpdateDto dados) {
         service.update(id, dados);
-        return ResponseEntity.noContent().build();
+        var body = service.getById(id);
+        return ResponseEntity.ok(body);
     }
 
     // DELETE lógico (ativo = false)
@@ -116,6 +125,7 @@ public class ProdutosController {
     @Transactional
     @Operation(summary = "Excluir (lógico) um produto", security = { @SecurityRequirement(name = "bearerAuth") })
     @ApiResponse(responseCode = "204", description = "Excluído")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> excluirProduto(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
@@ -134,7 +144,7 @@ public class ProdutosController {
     @Operation(summary = "Sugestões de produtos (autocomplete leve)")
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(mediaType = "application/json",
-            examples = @ExampleObject(value = "[{\n  \"id\":1,\n  \"nome\":\"Ração X\",\n  \"preco\":199.9,\n  \"thumbnailUrl\":\"https://...\"\n}]")))
+            examples = @ExampleObject(value = "[{\n  \"id\":1,\n  \"nome\":\"Ração X\",\n  \"descricao\":\"Sabor frango\",\n  \"preco\":199.9,\n  \"estoque\":10,\n  \"imagemUrl\":\"https://.../racao.png\",\n  \"categoria\":\"RACAO\",\n  \"ativo\":true,\n  \"sku\":\"RACAO-X-10KG\"\n}]")))
     public List<ProdutosReadDto> suggestions(
             @RequestParam(name = "q", required = false) String q,
             @RequestParam(name = "limit", defaultValue = "8") int limit

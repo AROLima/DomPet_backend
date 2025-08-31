@@ -14,7 +14,7 @@
 
 ## 🔗 Links rápidos
 
-- Swagger UI: http://localhost:8080/swagger-ui.html
+- Swagger UI: http://localhost:8080/swagger-ui.html (ou /swagger-ui/index.html)
 - OpenAPI JSON: http://localhost:8080/v3/api-docs
 
 ---
@@ -251,8 +251,32 @@ classDiagram
   ```
 
 ## 📖 Swagger / OpenAPI
-- **UI**: `http://localhost:8080/swagger-ui.html`
-- **Docs**: `http://localhost:8080/v3/api-docs`
+- UI: `http://localhost:8080/swagger-ui.html`
+- Docs: `http://localhost:8080/v3/api-docs`
+
+Como autorizar no Swagger UI:
+1. Faça login em `POST /auth/login` com seu email/senha.
+2. Copie o `token` retornado.
+3. Clique em Authorize (cadeado) no topo da UI e cole como `Bearer <token>`.
+
+Notas de contrato recentes:
+- Produtos inclui `sku` no `ProdutosReadDto`.
+- `GET /produtos/{id}` expõe cabeçalho `ETag` e suporta `If-None-Match` retornando `304 Not Modified`.
+- Mutations de produtos e pedidos exigem `bearerAuth` e perfis adequados (ADMIN quando indicado).
+
+Exemplos rápidos (PowerShell):
+```powershell
+# Login
+$resp = Invoke-RestMethod -Method Post -Uri http://localhost:8080/auth/login -ContentType 'application/json' -Body '{"email":"admin@dompet.dev","senha":"Admin@123"}'
+$token = $resp.token
+
+# Buscar produto por ID com ETag
+$r1 = Invoke-WebRequest -Headers @{ Authorization = "Bearer $token" } -Uri http://localhost:8080/produtos/1
+$etag = $r1.Headers.ETag
+
+# Conditional GET retorna 304
+Invoke-WebRequest -Headers @{ Authorization = "Bearer $token"; 'If-None-Match' = $etag } -Uri http://localhost:8080/produtos/1 -ErrorAction SilentlyContinue
+```
 
 
 ---

@@ -67,7 +67,9 @@ public class AuthController {
 
     // login automático depois do register (opcional)
   var token = loginInternal(dto.email(), dto.senha());
-  return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponseDto(token, getExpiresInSeconds()));
+  return ResponseEntity.status(HttpStatus.CREATED)
+      .header("X-API-Version", "1")
+      .body(new AuthResponseDto(token, tokenService.getExpirationMs()));
   }
 
   @PostMapping("/login")
@@ -78,7 +80,9 @@ public class AuthController {
   public ResponseEntity<AuthResponseDto> login(@RequestBody @Valid AuthLoginDto dto) {
   // Autentica usando AuthenticationManager (trigga UserDetailsService + PasswordEncoder)
   var token = loginInternal(dto.email(), dto.senha());
-  return ResponseEntity.ok(new AuthResponseDto(token, getExpiresInSeconds()));
+  return ResponseEntity.ok()
+      .header("X-API-Version", "1")
+      .body(new AuthResponseDto(token, tokenService.getExpirationMs()));
   }
 
   @PostMapping("/logout")
@@ -122,8 +126,10 @@ public class AuthController {
         .password(user.getSenha())
         .authorities(user.getRole().getAuthorities())
         .build();
-    var token = tokenService.generate(principal);
-    return ResponseEntity.ok(new AuthResponseDto(token, getExpiresInSeconds()));
+  var token = tokenService.generate(principal);
+  return ResponseEntity.ok()
+    .header("X-API-Version", "1")
+    .body(new AuthResponseDto(token, tokenService.getExpirationMs()));
   }
 
   private String loginInternal(String email, String senha) {
@@ -136,9 +142,6 @@ public class AuthController {
     return tokenService.generate(principal);
   }
 
-  private long getExpiresInSeconds() {
-    // TokenService não expõe expirationMs; extrair da configuração seria ideal.
-    // Usamos um default conhecido (3600s) para DX sem quebrar contrato existente.
-    return 3600L;
-  }
+  // Mantido para compatibilidade histórica caso alguém use; não utilizado pelas respostas atuais
+  private long getExpiresInSeconds() { return Math.max(1L, tokenService.getExpirationMs() / 1000L); }
 }
