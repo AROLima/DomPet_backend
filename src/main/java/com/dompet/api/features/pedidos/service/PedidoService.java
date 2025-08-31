@@ -1,3 +1,6 @@
+// PedidoService.java
+// Serviço que implementa o fluxo de checkout: valida estoque, cria pedido com snapshot
+// de preços, debita estoque, fecha carrinho e provê métodos para consulta e alteração de status.
 package com.dompet.api.features.pedidos.service;
 
 import com.dompet.api.common.errors.*;

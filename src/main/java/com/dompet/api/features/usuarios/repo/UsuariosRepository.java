@@ -1,3 +1,6 @@
+// UsuariosRepository.java
+// Repositório JPA para operações com a entidade Usuarios.
+// Métodos customizados úteis: existsByEmail e findByEmail retornando Optional.
 package com.dompet.api.features.usuarios.repo;
 
 import org.springframework.data.jpa.repository.JpaRepository;

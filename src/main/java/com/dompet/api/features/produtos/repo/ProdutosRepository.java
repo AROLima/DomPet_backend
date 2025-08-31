@@ -1,3 +1,5 @@
+// ProdutosRepository.java
+// Repositório JPA com consultas customizadas para filtros por categoria e nome.
 package com.dompet.api.features.produtos.repo;
 
 import com.dompet.api.features.produtos.domain.Categorias;

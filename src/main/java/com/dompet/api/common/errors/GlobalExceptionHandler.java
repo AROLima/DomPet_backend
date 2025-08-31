@@ -3,8 +3,6 @@ package com.dompet.api.common.errors;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.dao.DataIntegrityViolationException;
-import jakarta.validation.ConstraintViolationException;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -13,6 +11,7 @@ import java.util.*;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     record ValidationError(String field, String message) {}
+    // Estrutura uniforme usada nas respostas de erro para facilitar o consumo pelo cliente
     record ErrorBody(String timestamp, int status, String error, String message, String path, String code, List<ValidationError> errors) {}
 
     @ExceptionHandler(NotFoundException.class)

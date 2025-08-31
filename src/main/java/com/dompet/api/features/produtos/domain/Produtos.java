@@ -7,8 +7,16 @@ import lombok.*;
 
 /**
  * Entidade JPA de Produtos.
- * Campos principais: nome, descrição, preço, estoque, imagem, categoria e flag ativo.
- * Possui helpers para atualização parcial e exclusão lógica (ativo=false).
+ *
+ * Bloco metodológico:
+ * - Representa o produto no banco com informações essenciais para venda.
+ * - Mantém preço como BigDecimal (boa prática para valores monetários).
+ * - Usa "estoque" para controlar disponibilidade e permite exclusão lógica com `ativo`.
+ *
+ * Notas linha-a-linha nas propriedades mais importantes:
+ * - `preco` usa precision/scale para mapear corretamente em columns DECIMAL.
+ * - `descricao` é anotada com @Lob por suportar textos longos.
+ * - `sku` é único e pode ser usado para integração com inventário externo.
  */
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
@@ -52,6 +60,7 @@ public class Produtos {
 
     /** Atualiza apenas campos presentes no DTO (parcial). */
     public void atualizarInformacoes(ProdutosDto dados) {
+        // Linha: atualiza somente campos não-nulos do DTO, preservando dados existentes
         if (dados.nome() != null)        this.nome = dados.nome();
         if (dados.descricao() != null)   this.descricao = dados.descricao();
         if (dados.preco() != null)       this.preco = dados.preco();

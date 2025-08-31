@@ -1,3 +1,6 @@
+// PedidosController.java
+// Controller que expõe endpoints para checkout, consulta e administração de pedidos.
+// Usa PedidoService para a lógica de negócio e DTOs para as respostas.
 package com.dompet.api.features.pedidos.web;
 
 import com.dompet.api.features.pedidos.domain.StatusPedido;

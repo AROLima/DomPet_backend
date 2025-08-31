@@ -10,4 +10,7 @@ import com.dompet.api.features.pedidos.domain.Pedidos;
 public interface PedidosRepository extends JpaRepository<Pedidos, Long> {
 	/** Lista pedidos de um usuário pelo e-mail com paginação. */
 	Page<Pedidos> findByUsuarioEmail(String email, Pageable pageable);
+	
+	/** Lista todos os pedidos com paginação. */
+	Page<Pedidos> findAll(Pageable pageable);
 }

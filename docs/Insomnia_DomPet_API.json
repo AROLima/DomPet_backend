@@ -1,7 +1,7 @@
 {
   "_type": "export",
   "__export_format": 4,
-  "__export_date": "2025-08-30T00:00:00.000Z",
+  "__export_date": "2025-08-31T00:00:00.000Z",
   "__export_source": "generated.by.github.copilot",
   "resources": [
     {
@@ -331,6 +331,47 @@
       "name": "POST /carrinho/{carrinhoId}/itens/{produtoId}/decrementar?by=",
       "method": "POST",
       "url": "{{ base_url }}/carrinho/1/itens/1/decrementar?by=1",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ]
+    }
+    ,
+    {
+      "_id": "req_produtos_update",
+      "_type": "request",
+      "parentId": "fld_produtos",
+      "name": "PUT /produtos/{id} (ADMIN)",
+      "method": "PUT",
+      "url": "{{ base_url }}/produtos/1",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Ração Premium Cães Adultos 10kg - Atualizado\",\n  \"descricao\": \"Ração completa para cães adultos - nova descrição\",\n  \"preco\": 199.90,\n  \"estoque\": 15,\n  \"imagemUrl\": \"https://picsum.photos/seed/racao-premium/600/600\",\n  \"ativo\": true,\n  \"categoria\": \"RACAO\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ],
+      "description": "Atualiza um produto (requere role ADMIN)."
+    },
+    {
+      "_id": "req_produtos_delete",
+      "_type": "request",
+      "parentId": "fld_produtos",
+      "name": "DELETE /produtos/{id} (ADMIN)",
+      "method": "DELETE",
+      "url": "{{ base_url }}/produtos/1",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+      ],
+      "description": "Exclusão lógica do produto (ADMIN)."
+    },
+    {
+      "_id": "req_usuarios_me",
+      "_type": "request",
+      "parentId": "wrk_dompet_api",
+      "name": "GET /usuarios/me",
+      "method": "GET",
+      "url": "{{ base_url }}/usuarios/me",
       "headers": [
         { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
       ]

@@ -1,6 +1,6 @@
-// com/dompet/api/features/auth/security/DbUserDetailsService.java
-// Serviço responsável por buscar o usuário no banco a partir do email (username)
-// e convertê-lo para um objeto UserDetails que o Spring Security entende.
+// DbUserDetailsService.java
+// Implementação de UserDetailsService que carrega usuários do banco para o processo de autenticação.
+// Explica a transformação de entidade Usuarios para UserDetails usada pelo Spring Security.
 package com.dompet.api.features.auth.security;
 
 import org.springframework.security.core.userdetails.*;
@@ -8,6 +8,12 @@ import org.springframework.stereotype.Service;
 
 import com.dompet.api.features.usuarios.repo.UsuariosRepository;
 
+/**
+ * Implementação de UserDetailsService que busca usuários no banco.
+ *
+ * O Spring Security usa essa classe para carregar dados do usuário durante a
+ * autenticação (comparação de senha via PasswordEncoder).
+ */
 @Service
 public class DbUserDetailsService implements UserDetailsService {
 
@@ -21,8 +27,8 @@ public class DbUserDetailsService implements UserDetailsService {
     // Busca o usuário por email; se não encontrar, lança exceção padrão do Spring Security
     var u = repo.findByEmail(email)
         .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
-    // Converte o enum Role para String esperada por UserDetailsBuilder (ex.: USER, ADMIN)
-    var role = (u.getRole() == null ? "USER" : u.getRole().name());
+  // Converte o enum Role para String esperada por UserDetailsBuilder (ex.: USER, ADMIN)
+  var role = (u.getRole() == null ? "USER" : u.getRole().name());
     // Monta um User (implementação de UserDetails) com dados do banco
     return User.withUsername(u.getEmail())
         .password(u.getSenha())

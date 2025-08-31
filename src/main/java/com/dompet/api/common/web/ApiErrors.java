@@ -23,10 +23,15 @@ import java.util.stream.Collectors;
  */
 @RestControllerAdvice
 public class ApiErrors {
-
+    /** Estrutura para representar violações de campos em validações. */
     record FieldViolation(String field, String message) {}
 
-    /** 404 para entidades não encontradas (ex.: Produto). */
+    /**
+     * Handler centralizado de exceções que converte exceções Java em ProblemDetail (RFC 7807).
+     * Objetivo didático: mostrar como mapear exceções para códigos HTTP sem espalhar try/catch pelos controllers.
+     */
+    // Observação: este bean centraliza o mapeamento de exceções e é prioridade sobre handlers locais.
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ProblemDetail handleNotFound(EntityNotFoundException ex, HttpServletRequest req) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);

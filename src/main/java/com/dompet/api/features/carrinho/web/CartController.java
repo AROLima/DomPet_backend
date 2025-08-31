@@ -1,3 +1,6 @@
+// CartController.java
+// Endpoints do carrinho (usuário autenticado) com operações de adição/remoção/atualização.
+// Usa DTOs específicos para evitar expor entidades e permite respostas com subtotal/total.
 package com.dompet.api.features.carrinho.web;
 
 import com.dompet.api.features.carrinho.dto.*;

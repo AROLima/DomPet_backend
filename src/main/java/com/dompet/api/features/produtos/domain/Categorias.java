@@ -8,3 +8,4 @@ public enum Categorias {
     BRINQUEDOS,
     ACESSORIOS
 }
+// Nota: enum simples para categorizar produtos; considerar normalizar em tabela se categorias crescerem.

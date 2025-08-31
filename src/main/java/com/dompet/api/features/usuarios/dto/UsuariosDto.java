@@ -1,3 +1,6 @@
+// UsuariosDto.java
+// DTO simples que representa os campos públicos do usuário expostos pela API.
+// Mantém senha como campo opcional/omisso para garantir que a API não retorne senhas.
 package com.dompet.api.features.usuarios.dto;
 
 import com.dompet.api.shared.endereco.Endereco;
@@ -12,5 +15,4 @@ public record UsuariosDto(
     Role role,
     Boolean ativo
 ) {
-    
 }

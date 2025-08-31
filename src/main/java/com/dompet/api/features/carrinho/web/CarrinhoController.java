@@ -1,3 +1,6 @@
+// CarrinhoController.java
+// Endpoints que manipulam quantidades por delta (útil para ajustes incrementais via UI)
+// Fornece rotas convenientes para incrementar/decrementar e alterar por delta.
 package com.dompet.api.features.carrinho.web;
 
 import com.dompet.api.features.carrinho.dto.CarrinhoDto;

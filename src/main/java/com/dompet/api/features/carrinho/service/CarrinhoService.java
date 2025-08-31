@@ -1,3 +1,6 @@
+// CarrinhoService.java
+// Implementa regras de negócio do carrinho: obtenção/criação, adição, atualização,
+// remoção e operações por delta. Valida estoque e mapeia entidades para DTOs.
 package com.dompet.api.features.carrinho.service;
 
 import com.dompet.api.common.errors.*;
@@ -71,16 +74,17 @@ public class CarrinhoService {
     /** Adiciona item ao carrinho, mesclando com existente e limitando ao estoque. */
     @Transactional
     public CartResponseDto addItem(String email, Long produtoId, Integer quantidade) {
+        // valida quantidade de entrada
         if (quantidade == null || quantidade < 1) throw new IllegalArgumentException("Quantidade deve ser >= 1");
         var cart = getOrCreateCart(email);
         Produtos produto = produtosRepo.findById(produtoId)
                 .orElseThrow(() -> new NotFoundException("Produto não encontrado"));
+        // evita adicionar produtos marcados como inativos
         if (Boolean.FALSE.equals(produto.getAtivo()))
             throw new IllegalArgumentException("Produto inativo");
         if (produto.getEstoque() == null || produto.getEstoque() < 1)
             throw new InsufficientStockException("Sem estoque", java.util.List.of(produto.getNome()));
-
-        // merge item
+        // merge item: se já existir, soma e limita ao estoque; caso contrário adiciona novo
         var existing = cart.getItens().stream().filter(i -> i.getProduto().getId().equals(produtoId)).findFirst();
         if (existing.isPresent()) {
             int novaQtd = existing.get().getQuantidade() + quantidade;

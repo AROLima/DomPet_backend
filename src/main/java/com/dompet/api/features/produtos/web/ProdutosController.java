@@ -1,3 +1,6 @@
+// ProdutosController.java
+// Controller de produtos que expõe rotas REST (CRUD + buscas) delegando para ProdutosService.
+// Mantém contratos claros via DTOs de entrada/saída e anotações OpenAPI.
 package com.dompet.api.features.produtos.web;
 
 import java.util.List;
@@ -138,6 +141,8 @@ public class ProdutosController {
     public Categorias[] listarCategorias() {
         return Categorias.values();
     }
+
+    // Nota: controller é fino; toda regra de negócio permanece em ProdutosService.
 
     // SUGESTÕES (autocomplete leve) - adição compatível
     @GetMapping("/suggestions")

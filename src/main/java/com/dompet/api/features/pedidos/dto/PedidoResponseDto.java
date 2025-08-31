@@ -22,3 +22,4 @@ public record PedidoResponseDto(
         BigDecimal subtotal
     ) {}
 }
+// Nota: DTO de resposta que representa snapshot do pedido; usar para apresentar ao cliente.

@@ -1,3 +1,6 @@
+// ItemCarrinho.java
+// Entidade que representa uma linha no carrinho: produto + quantidade.
+// Oferece método getSubtotal() que calcula preco * quantidade com arredondamento.
 package com.dompet.api.features.carrinho.domain;
 
 import com.dompet.api.features.produtos.domain.Produtos;

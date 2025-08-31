@@ -1,4 +1,5 @@
 package com.dompet.api.features.produtos.dto;
+// DOC: DTO usado para atualizar parte ou todos os campos de um produto existente.
 
 import com.dompet.api.features.produtos.domain.Categorias;
 import jakarta.validation.constraints.*;

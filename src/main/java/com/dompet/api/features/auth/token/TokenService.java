@@ -1,4 +1,4 @@
-// com/dompet/api/features/auth/token/TokenService.java
+// TokenService: cria e valida JWTs (HS256)
 package com.dompet.api.features.auth.token;
 
 import java.util.Base64;
@@ -24,32 +24,47 @@ import org.slf4j.LoggerFactory;
 @Service
 /**
  * Serviço responsável por criar e validar tokens JWT (HS256).
- * - Usa um segredo forte (>= 32 bytes). Preferível fornecer em Base64 via app.jwt.secret
- * - Inclui a claim "ver" (tokenVersion) para invalidar tokens antigos após logout-all.
+ *
+ * Notas para estudo:
+ * - O segredo (`app.jwt.secret`) deve ter pelo menos 32 bytes; recomenda-se fornecer em Base64.
+ * - Em ambiente de DEV, se o segredo não estiver definido, geramos uma chave volátil para permitir testes.
+ * - Incluímos a claim "ver" com o tokenVersion do usuário para permitir invalidar tokens após logout-all.
  */
 public class TokenService {
 
   private static final Logger log = LoggerFactory.getLogger(TokenService.class);
-  private final SecretKey key;
-  private final long expirationMs;
-  private final UsuariosRepository usuariosRepo;
+  private final SecretKey key; // chave usada para assinar tokens HS256
+  private final long expirationMs; // validade em milissegundos
+  private final UsuariosRepository usuariosRepo; // para ler tokenVersion do usuário
 
+  /**
+   * Construtor:
+   * - `secret` é lido da configuração (recomendado Base64). Se vazio, gera chave volátil para DEV.
+   * - `expirationMs` define quanto tempo o token é válido.
+   */
   public TokenService(
-      @Value("${app.jwt.secret:}") String secret,                 // Base64 recomendado; vazio => gera chave volátil p/ DEV
+      @Value("${app.jwt.secret:}") String secret,
       @Value("${app.jwt.expiration-ms}") long expirationMs,
       UsuariosRepository usuariosRepo) {
 
+  /**
+   * Resumo didático (o que olhar ao estudar este arquivo):
+   * - Gere tokens com claims sem expor segredos nos códigos-fonte.
+   * - Observe o uso de `ver` (tokenVersion) como mecanismo simples de invalidar todos os tokens antigos.
+   * - parseClaims() lança JwtException para sinalizar token inválido/expirado.
+   */
     byte[] raw;
     if (secret == null || secret.isBlank()) {
-      // Gera chave volátil (não persiste) para ambiente DEV quando a variável não foi definida.
+      // Gera chave volátil para DEV (não usar em produção)
       raw = new byte[64];
       java.security.SecureRandom rand = new java.security.SecureRandom();
       rand.nextBytes(raw);
       log.warn("APP_JWT_SECRET não definido. Gerando chave HS256 volátil para DEV. Defina APP_JWT_SECRET para estabilidade dos tokens.");
     } else {
-      try { // tenta Base64 primeiro
+      try { // tenta decodificar Base64 primeiro
         raw = Base64.getDecoder().decode(secret);
       } catch (IllegalArgumentException ex) {
+        // Se não for Base64, usa bytes UTF-8 do valor
         raw = secret.getBytes(java.nio.charset.StandardCharsets.UTF_8);
       }
     }
@@ -67,10 +82,10 @@ public class TokenService {
   }
 
   /**
-   * Gera JWT com:
-   * - sub = email (subject)
-   * - roles = authorities do usuário (para clientes inspecionarem se necessário)
-   * - ver = tokenVersion do usuário (invalidação de tokens antigos)
+   * Gera JWT com claims úteis:
+   * - sub = email
+   * - roles = lista de authorities
+   * - ver = tokenVersion do usuário (usado para invalidar tokens antigos)
    */
   public String generate(UserDetails principal) {
     var email = principal.getUsername();
@@ -86,7 +101,7 @@ public class TokenService {
     return Jwts.builder()
         .setSubject(email)
         .claim("roles", roles)
-        .claim("ver", user.getTokenVersion())   // << versão para suportar logout-all
+        .claim("ver", user.getTokenVersion())   // versão para suportar logout-all
         .setIssuedAt(now)
         .setExpiration(exp)
         .signWith(key, SignatureAlgorithm.HS256)
@@ -94,8 +109,8 @@ public class TokenService {
   }
 
   /**
-   * Extrai token do header Authorization.
-   * Ex.: Authorization: Bearer <token>
+   * Extrai token do header Authorization (Bearer <token>).
+   * Retorna null se não houver token.
    */
   public String resolveToken(HttpServletRequest req) {
     var h = req.getHeader("Authorization");
@@ -104,7 +119,7 @@ public class TokenService {
   }
 
   /**
-   * Valida assinatura/expiração e retorna Claims.
+   * Valida assinatura e expiração; retorna Claims se válido.
    * Lança JwtException quando inválido/expirado.
    */
   public Claims parseClaims(String token) throws JwtException {
@@ -117,7 +132,7 @@ public class TokenService {
     return parseClaims(token).getSubject();
   }
 
-  /** True se sintaticamente válido e não expirado. */
+  /** True se o token for sintaticamente válido e não expirado. */
   public boolean isValid(String token) {
     try {
       parseClaims(token);

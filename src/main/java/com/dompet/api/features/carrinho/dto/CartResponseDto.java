@@ -1,3 +1,5 @@
+// CartResponseDto.java
+// DTO de resposta do endpoint /cart que inclui itens com ids para operações PATCH/DELETE.
 package com.dompet.api.features.carrinho.dto;
 
 import java.math.BigDecimal;

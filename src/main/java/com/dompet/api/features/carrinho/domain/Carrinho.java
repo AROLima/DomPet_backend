@@ -1,3 +1,6 @@
+// Carrinho.java
+// Entidade do carrinho que agrupa itens, dono (usuario) e mantém timestamps.
+// Contém lógica para calcular total somando subtotais dos itens.
 package com.dompet.api.features.carrinho.domain;
 
 import com.dompet.api.features.usuarios.domain.Usuarios;

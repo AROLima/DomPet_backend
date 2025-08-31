@@ -1,3 +1,8 @@
+// ProdutosService.java
+// Serviço de negócio para Produtos. Contém:
+// - conversões entidade <-> DTO
+// - regras de validação simples (ex.: escala de preço)
+// - operações transacionais para criar/atualizar/excluir
 package com.dompet.api.features.produtos.service;
 
 import com.dompet.api.features.produtos.domain.Produtos;
