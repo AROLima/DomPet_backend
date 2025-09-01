@@ -1,7 +1,7 @@
 {
   "_type": "export",
   "__export_format": 4,
-  "__export_date": "2025-08-31T00:00:00.000Z",
+  "__export_date": "2025-09-01T06:34:00.000Z",
   "__export_source": "generated.by.github.copilot",
   "resources": [
     {
@@ -100,11 +100,11 @@
     },
     {
       "_id": "req_produtos_search",
-      "_type": "request",
-      "parentId": "fld_produtos",
-      "name": "GET /produtos/search (paginado)",
-      "method": "GET",
-      "url": "{{ base_url }}/produtos/search?nome=racao&size=10&page=0"
+  "_type": "request",
+  "parentId": "fld_produtos",
+  "name": "GET /produtos/search (paginado)",
+  "method": "GET",
+  "url": "{{ base_url }}/produtos/search?nome=racao&size=10&page=0"
     },
     {
       "_id": "req_produtos_get_id",
@@ -349,7 +349,8 @@
       },
       "headers": [
         { "name": "Content-Type", "value": "application/json" },
-        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
+  { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" },
+  { "name": "If-Match", "value": "{% response 'header', 'req_produtos_get_id', 'ETag' %}" }
       ],
       "description": "Atualiza um produto (requere role ADMIN)."
     },
@@ -364,17 +365,6 @@
         { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
       ],
       "description": "Exclusão lógica do produto (ADMIN)."
-    },
-    {
-      "_id": "req_usuarios_me",
-      "_type": "request",
-      "parentId": "wrk_dompet_api",
-      "name": "GET /usuarios/me",
-      "method": "GET",
-      "url": "{{ base_url }}/usuarios/me",
-      "headers": [
-        { "name": "Authorization", "value": "Bearer {% response 'body', 'req_auth_login', '$.token' %}" }
-      ]
-    }
+  }
   ]
 }

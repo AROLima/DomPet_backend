@@ -96,5 +96,19 @@ INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, at
 ('Bola Interativa com Petiscos', 'Dispensa petiscos e estimula o enriquecimento.', 44.90, 45, 'https://picsum.photos/seed/bola-interativa/600/600', 'BRINQUEDOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Varinha com Penas', 'Estimula o instinto de caça dos gatos.', 24.90, 85, 'https://picsum.photos/seed/varinha-penas/600/600', 'BRINQUEDOS', TRUE);
- 
+('Varinha com Penas', 'Estimula o instinto de caça dos gatos.', 24.90, 85, 'https://picsum.photos/seed/varinha-penas/600/600', 'OUTDOOR', TRUE);
+
+INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
+('Pelúcia Interativa', 'Brinquedo macio que emite sons.', 39.90, 60, 'https://picsum.photos/seed/pelucia-interativa/600/600', 'OUTDOOR', TRUE);
+
+INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
+('Brinquedo de Borracha', 'Resistente e ideal para mastigação.', 29.90, 100, 'https://picsum.photos/seed/brinquedo-borracha/600/600', 'BRINQUEDOS', TRUE);
+
+INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
+('Brinquedo de Pelúcia', 'Brinquedo macio e aconchegante.', 49.90, 80, 'https://picsum.photos/seed/brinquedo-pelucia/600/600', 'BRINQUEDOS', TRUE);
+
+INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
+('Arranhador para Gatos', 'Arranhador com plataforma e brinquedos pendurados.', 129.90, 30, 'https://picsum.photos/seed/arranhador-gatos/600/600', 'OUTDOOR', TRUE);
+
+INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
+('Caminha para Gatos', 'Caminha confortável com design moderno.', 99.90, 25, 'https://picsum.photos/seed/caminha-gatos/600/600', 'OUTDOOR', TRUE);
