@@ -6,6 +6,7 @@ public enum Categorias {
     MEDICAMENTOS,
     HIGIENE,
     BRINQUEDOS,
-    ACESSORIOS
+    ACESSORIOS,
+    OUTDOOR
 }
 // Nota: enum simples para categorizar produtos; considerar normalizar em tabela se categorias crescerem.

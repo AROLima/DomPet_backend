@@ -2,6 +2,8 @@ package com.dompet.api.common.config;
 
 // ATENÇÃO: Flutter (mobile) não precisa de CORS. Esta classe é um exemplo comentado para Flutter Web.
 // Para ativar, remova os comentários e ajuste os domínios permitidos.
+// NOTA: CORS já está configurado no SecurityConfig.java
+
 /*
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,3 +31,4 @@ public class CorsConfig {
   }
 }
 */
+

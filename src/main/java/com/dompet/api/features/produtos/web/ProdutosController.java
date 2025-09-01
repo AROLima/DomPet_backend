@@ -35,6 +35,7 @@ import org.springframework.data.domain.PageRequest;
  * - Retorna DTOs de leitura para não vazar a entidade JPA.
  */
 @RestController
+@CrossOrigin(origins = "*", allowedHeaders = "*", exposedHeaders = {"ETag", "Location", "X-API-Version"})
 @RequestMapping("/produtos")
 @Tag(name = "Produtos", description = "Operações com produtos")
 public class ProdutosController {
@@ -43,6 +44,10 @@ public class ProdutosController {
 
     public ProdutosController(ProdutosService service) {
         this.service = service;
+    }
+
+    private String computeEtag(ProdutosReadDto dto) {
+        return '"' + Integer.toHexString(java.util.Objects.hash(dto.id(), dto.nome(), dto.preco(), dto.estoque(), dto.imagemUrl())) + '"';
     }
 
     // CREATE
@@ -100,7 +105,7 @@ public class ProdutosController {
         try {
             var dto = service.getById(id);
             // ETag simples baseado nos campos principais
-            var etag = '"' + Integer.toHexString(java.util.Objects.hash(dto.id(), dto.nome(), dto.preco(), dto.estoque(), dto.imagemUrl())) + '"';
+            var etag = computeEtag(dto);
             if (inm != null && inm.equals(etag)) {
                 return ResponseEntity.status(304).eTag(etag).build();
             }
@@ -117,10 +122,26 @@ public class ProdutosController {
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(schema = @Schema(implementation = ProdutosReadDto.class)))
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProdutosReadDto> atualizarProduto(@PathVariable Long id, @RequestBody @Valid ProdutosUpdateDto dados) {
+    public ResponseEntity<?> atualizarProduto(
+        @PathVariable Long id,
+        @RequestBody @Valid ProdutosUpdateDto dados,
+        @RequestHeader(value = "If-Match", required = false) String ifMatch
+    ) {
+        // Verifica pré-condição (If-Match) usando o ETag atual do recurso
+        var current = service.getById(id);
+        var currentEtag = computeEtag(current);
+        if (ifMatch != null && !ifMatch.equals(currentEtag)) {
+            // 412 Precondition Failed com corpo ProblemDetail (Spring 6)
+            var pd = org.springframework.http.ProblemDetail.forStatus(412);
+            pd.setTitle("Precondition Failed");
+            pd.setDetail("A versão do recurso mudou. Recarregue e tente novamente.");
+            return ResponseEntity.status(412).eTag(currentEtag).body(pd);
+        }
+
         service.update(id, dados);
         var body = service.getById(id);
-        return ResponseEntity.ok(body);
+        var newEtag = computeEtag(body);
+        return ResponseEntity.ok().eTag(newEtag).body(body);
     }
 
     // DELETE lógico (ativo = false)
