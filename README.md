@@ -477,5 +477,14 @@ sequenceDiagram
 
 ---
 
-## 📄 Licença
-Livre para estudo e evolução. ✨
+## � Desenvolvido por
+
+- Anderson Lima  — GitHub: [@Arolima](https://github.com/usuario1)
+- Gabriel Lacerda — GitHub: [@lacerdagb](https://github.com/lacerdagb)
+- Miguel — GitHub: []()
+- Rafael — GitHub: []()
+- Vagner Bruno — GitHub: [@vagner99brrj](https://github.com/vagner99brrj)
+
+
+
+
