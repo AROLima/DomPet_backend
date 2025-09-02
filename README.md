@@ -467,8 +467,6 @@ sequenceDiagram
 - Soft delete (`ativo=true/false`) + endpoints de **ativar/excluir**
 - DTOs com validação (@NotBlank/@NotNull/@PositiveOrZero)
 - Enum `Categorias` persistido como `STRING`
-- Filtro JWT `OncePerRequestFilter` + Security stateless
-- Erros de validação e domínio centralizados em handler global
 
 ---
 
@@ -479,7 +477,7 @@ sequenceDiagram
 
 ## � Desenvolvido por
 
-- Anderson Lima  — GitHub: [@Arolima](https://github.com/usuario1)
+- Anderson Lima  — GitHub: [@Arolima](https://github.com/AROLima)
 - Gabriel Lacerda — GitHub: [@lacerdagb](https://github.com/lacerdagb)
 - Miguel — GitHub: []()
 - Rafael — GitHub: []()
