@@ -63,6 +63,7 @@ class ProdutosControllerTest {
         mvc.perform(get("/produtos").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(header().exists("ETag"))
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].nome").value("Ração"))
                 .andExpect(jsonPath("$[0].categoria").value("RACAO"));
@@ -75,11 +76,35 @@ class ProdutosControllerTest {
         Page<ProdutosReadDto> page = new PageImpl<>(List.of(dto), PageRequest.of(0, 20), 1);
         given(service.search(any(), any(), any())).willReturn(page);
 
-        mvc.perform(get("/produtos/search").accept(MediaType.APPLICATION_JSON))
+    mvc.perform(get("/produtos/search").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(header().exists("ETag"))
                 .andExpect(jsonPath("$.content[0].id").value(1))
-                .andExpect(jsonPath("$.content[0].ativo").value(true));
+        .andExpect(jsonPath("$.content[0].ativo").value(true))
+        .andExpect(jsonPath("$.number").value(0))
+        .andExpect(jsonPath("$.size").value(20))
+        .andExpect(jsonPath("$.totalElements").value(1))
+        .andExpect(jsonPath("$.totalPages").value(1))
+        .andExpect(jsonPath("$.first").value(true))
+        .andExpect(jsonPath("$.last").value(true));
+    }
+
+    @Test
+    @DisplayName("GET /produtos/search 304 when If-None-Match matches ETag")
+    void listarProdutosPaginado_304_on_match() throws Exception {
+    var dto = new ProdutosReadDto(1L, "Ração", "Premium", new BigDecimal("10.50"), 5, null, Categorias.RACAO, true, "SKU-1");
+    Page<ProdutosReadDto> page = new PageImpl<>(List.of(dto), PageRequest.of(0, 20), 1);
+    given(service.search(any(), any(), any())).willReturn(page);
+
+    var res = mvc.perform(get("/produtos/search").accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andReturn();
+    var etag = res.getResponse().getHeader("ETag");
+
+    // Repeat request with If-None-Match
+    mvc.perform(get("/produtos/search").header("If-None-Match", etag).accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotModified());
     }
 
     @Test
