@@ -9,8 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.CacheControl;
+import org.springframework.data.domain.Page;
 import jakarta.validation.Valid;
 
 import com.dompet.api.features.produtos.domain.Categorias;
@@ -18,6 +20,7 @@ import com.dompet.api.features.produtos.dto.ProdutosCreateDto;
 import com.dompet.api.features.produtos.dto.ProdutosReadDto;
 import com.dompet.api.features.produtos.dto.ProdutosUpdateDto;
 import com.dompet.api.features.produtos.service.ProdutosService;
+import com.dompet.api.shared.web.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -50,6 +53,23 @@ public class ProdutosController {
         return '"' + Integer.toHexString(java.util.Objects.hash(dto.id(), dto.nome(), dto.preco(), dto.estoque(), dto.imagemUrl())) + '"';
     }
 
+    private String computeEtagForList(List<ProdutosReadDto> list) {
+        var payload = list.stream()
+            .map(d -> java.util.Arrays.asList(d.id(), d.nome(), d.preco(), d.estoque(), d.imagemUrl(), d.categoria(), d.ativo(), d.sku()))
+            .toList();
+        return '"' + Integer.toHexString(java.util.Objects.hash(list.size(), payload)) + '"';
+    }
+
+    private String computeEtagForPage(Page<ProdutosReadDto> page) {
+        var payload = page.getContent().stream()
+            .map(d -> java.util.Arrays.asList(d.id(), d.nome(), d.preco(), d.estoque(), d.imagemUrl(), d.categoria(), d.ativo(), d.sku()))
+            .toList();
+        int h = java.util.Objects.hash(
+            page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(), page.isFirst(), page.isLast(), payload
+        );
+        return '"' + Integer.toHexString(h) + '"';
+    }
+
     // CREATE
     @PostMapping
     @Transactional
@@ -70,25 +90,43 @@ public class ProdutosController {
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProdutosReadDto.class)),
             examples = @ExampleObject(value = "[{\n  \"id\":1,\n  \"nome\":\"Ração X\",\n  \"descricao\":\"Sabor frango\",\n  \"preco\":199.9,\n  \"estoque\":10,\n  \"imagemUrl\":\"https://.../racao.png\",\n  \"categoria\":\"RACAO\",\n  \"ativo\":true,\n  \"sku\":\"RACAO-X-10KG\"\n}]")))
-    public List<ProdutosReadDto> listarProdutos(
+    @ApiResponse(responseCode = "304", description = "Not Modified (If-None-Match igual ao ETag)")
+    @ApiResponse(responseCode = "200", description = "OK",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProdutosReadDto.class))),
+        headers = { @Header(name = "ETag", description = "Entity tag para conditional GETs", schema = @Schema(type = "string")) })
+    public ResponseEntity<List<ProdutosReadDto>> listarProdutos(
             @RequestParam(required = false) Categorias categoria,
-            @RequestParam(required = false) String nome
+            @RequestParam(required = false) String nome,
+            @RequestHeader(value = "If-None-Match", required = false) String inm
     ) {
-        return service.list(categoria, nome);
+        var list = service.list(categoria, nome);
+        var etag = computeEtagForList(list);
+        if (inm != null && inm.equals(etag)) {
+            return ResponseEntity.status(304).eTag(etag).build();
+        }
+        return ResponseEntity.ok().eTag(etag).body(list);
     }
 
     // READ - paginado com ativo=true preservando compatibilidade em nova rota
     @GetMapping("/search")
     @Operation(summary = "Listar produtos paginado (ativo=true) com filtros opcionais de nome e categoria")
     @ApiResponse(responseCode = "200", description = "OK",
+        headers = { @Header(name = "ETag", description = "Entity tag para conditional GETs", schema = @Schema(type = "string")) },
         content = @Content(mediaType = "application/json",
-            examples = @ExampleObject(value = "{\n  \"content\":[{\n    \"id\":1,\n    \"nome\":\"Ração X\",\n    \"descricao\":\"Sabor frango\",\n    \"preco\":199.9,\n    \"estoque\":10,\n    \"imagemUrl\":\"https://.../racao.png\",\n    \"categoria\":\"RACAO\",\n    \"ativo\":true,\n    \"sku\":\"RACAO-X-10KG\"\n  }],\n  \"totalElements\":1,\n  \"totalPages\":1,\n  \"size\":20,\n  \"number\":0\n}")))
-    public Page<ProdutosReadDto> listarProdutosPaginado(
+            examples = @ExampleObject(value = "{\n  \"content\":[{\n    \"id\":1,\n    \"nome\":\"Ração X\",\n    \"descricao\":\"Sabor frango\",\n    \"preco\":199.9,\n    \"estoque\":10,\n    \"imagemUrl\":\"https://.../racao.png\",\n    \"categoria\":\"RACAO\",\n    \"ativo\":true,\n    \"sku\":\"RACAO-X-10KG\"\n  }],\n  \"totalElements\":1,\n  \"totalPages\":1,\n  \"size\":20,\n  \"number\":0,\n  \"first\":true,\n  \"last\":true\n}")))
+    @ApiResponse(responseCode = "304", description = "Not Modified (If-None-Match igual ao ETag)")
+    public ResponseEntity<PageResponse<ProdutosReadDto>> listarProdutosPaginado(
             @RequestParam(required = false) String nome,
             @RequestParam(required = false) Categorias categoria,
-            Pageable pageable
+            @PageableDefault(size = 20, sort = "nome") Pageable pageable,
+            @RequestHeader(value = "If-None-Match", required = false) String inm
     ) {
-        return service.search(nome, categoria, pageable);
+        var page = service.search(nome, categoria, pageable);
+        var etag = computeEtagForPage(page);
+        if (inm != null && inm.equals(etag)) {
+            return ResponseEntity.status(304).eTag(etag).build();
+        }
+        return ResponseEntity.ok().eTag(etag).body(PageResponse.from(page));
     }
 
     // READ - por ID (aceita só dígitos para evitar conflito com outras rotas)
@@ -159,11 +197,12 @@ public class ProdutosController {
     @GetMapping("/categorias")
     @Operation(summary = "Listar categorias")
     @ApiResponse(responseCode = "200", description = "OK")
-    public Categorias[] listarCategorias() {
-        return Categorias.values();
+    public ResponseEntity<Categorias[]> listarCategorias() {
+        var cache = CacheControl.maxAge(java.time.Duration.ofHours(1)).cachePublic();
+        return ResponseEntity.ok().cacheControl(cache).body(Categorias.values());
     }
 
-    // Nota: controller é fino; toda regra de negócio permanece em ProdutosService.
+
 
     // SUGESTÕES (autocomplete leve) - adição compatível
     @GetMapping("/suggestions")
@@ -171,11 +210,19 @@ public class ProdutosController {
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(mediaType = "application/json",
             examples = @ExampleObject(value = "[{\n  \"id\":1,\n  \"nome\":\"Ração X\",\n  \"descricao\":\"Sabor frango\",\n  \"preco\":199.9,\n  \"estoque\":10,\n  \"imagemUrl\":\"https://.../racao.png\",\n  \"categoria\":\"RACAO\",\n  \"ativo\":true,\n  \"sku\":\"RACAO-X-10KG\"\n}]")))
-    public List<ProdutosReadDto> suggestions(
+    public ResponseEntity<List<ProdutosReadDto>> suggestions(
             @RequestParam(name = "q", required = false) String q,
-            @RequestParam(name = "limit", defaultValue = "8") int limit
+            @RequestParam(name = "limit", defaultValue = "8") int limit,
+            @RequestHeader(value = "If-None-Match", required = false) String inm
     ) {
         var pageable = PageRequest.of(0, Math.max(1, Math.min(limit, 50)));
-        return service.search(q, null, pageable).getContent();
+        var list = service.search(q, null, pageable).getContent();
+        // ETag composto de entradas principais para evitar recomputar corpo
+        var etag = '"' + Integer.toHexString(java.util.Objects.hash(list.size(),
+            list.stream().map(d -> java.util.Arrays.asList(d.id(), d.nome(), d.preco(), d.estoque(), d.imagemUrl(), d.categoria(), d.ativo(), d.sku())).toList())) + '"';
+        if (inm != null && inm.equals(etag)) {
+            return ResponseEntity.status(304).eTag(etag).build();
+        }
+        return ResponseEntity.ok().eTag(etag).body(list);
     }
 }
