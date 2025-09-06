@@ -23,7 +23,7 @@ INSERT INTO usuarios (nome, email, senha, role, ativo, token_version) VALUES
 
 -- RACAO
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Ração Premium Cães Adultos 10kg', 'Ração completa para cães adultos, com proteínas de alta qualidade e prebióticos.', 189.90, 25, 'https://picsum.photos/seed/racao-caes-10kg/600/600', 'RACAO', TRUE);
+('Ração Premium Cães Adultos 10kg', 'Ração completa para cães adultos, com proteínas de alta qualidade e prebióticos.', 189.90, 25, 'https://dompet-test.s3.us-east-2.amazonaws.com/racao_premium.jpg', 'RACAO', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
 ('Ração Gatos Castrados 3kg', 'Alimento balanceado para gatos castrados, controle de peso e saúde urinária.', 119.90, 30, 'https://picsum.photos/seed/racao-gatos-3kg/600/600', 'RACAO', TRUE);
