@@ -80,15 +80,6 @@ spring.jpa.defer-datasource-initialization=true
 spring.sql.init.mode=always
 ```
 
-**Gerar chave** (32 bytes Base64 / HS256):
-- **Windows (PowerShell):**
-  ```powershell
-  [Convert]::ToBase64String([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
-  ```
-- **Linux/macOS (OpenSSL):**
-  ```bash
-  openssl rand -base64 32
-  ```
 
 > No código, a senha do usuário é **hasheada** com BCrypt e **não** é reversível.
 
@@ -439,25 +430,6 @@ sequenceDiagram
   Note right of C: Armazena token e envia no header Authorization: Bearer <token>
   C->>API: GET /produtos (Authorization: Bearer ...)
   API-->>C: 200 lista
-```
-
-### Logout-all com tokenVersion
-```mermaid
-sequenceDiagram
-  autonumber
-  participant C as Cliente (token A)
-  participant API as Dompet API
-  participant DB as DB (usuarios.token_version)
-  C->>API: POST /auth/logout-all (Authorization: Bearer token A)
-  API->>DB: usuarios.bumpTokenVersion()
-  API-->>C: 204 No Content
-  Note over DB: token_version incrementado (ex.: 0 → 1)
-  C->>API: GET /pedidos (Authorization: Bearer token A)
-  API-->>C: 401 Unauthorized (ver do token != token_version)
-  C->>API: POST /auth/login (novamente)
-  API-->>C: 200 { token B (ver=1) }
-  C->>API: GET /pedidos (Authorization: Bearer token B)
-  API-->>C: 200 OK
 ```
 
 ---
