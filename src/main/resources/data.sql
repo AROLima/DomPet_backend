@@ -54,7 +54,7 @@ INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, at
 ('Coleira Antipulgas P', 'Proteção contra pulgas e carrapatos por até 8 semanas.', 89.90, 20, 'https://dompet-test.s3.us-east-2.amazonaws.com/coleira-antipulgas-1200x1200.png', 'MEDICAMENTOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Spray Antipulgas 100ml', 'Ação tópica rápida contra ectoparasitas.', 64.90, 25, 'https://dompet-test.s3.us-east-2.amazonaws.com/spruyantipulgas-1200x1200.png', 'MEDICAMENTOS', TRUE);
+('Spray Antipulgas 100ml', 'Ação tópica rápida contra ectoparasitas.', 64.90, 25, 'https://dompet-test.s3.us-east-2.amazonaws.com/sprayantipulgas-1200x1200.png', 'MEDICAMENTOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
 ('Vermífugo Cães M 2cp', 'Combate verminoses intestinais comuns.', 34.90, 35, 'https://dompet-test.s3.us-east-2.amazonaws.com/vermifugocaes-1200x1200.png', 'MEDICAMENTOS', TRUE);
