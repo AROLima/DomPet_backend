@@ -1,4 +1,3 @@
-
 -- ADMIN (senha: Admin@123)
 INSERT INTO usuarios (nome, email, senha, role, ativo, token_version)
 VALUES ('Admin', 'admin@dompet.dev',
@@ -23,92 +22,92 @@ INSERT INTO usuarios (nome, email, senha, role, ativo, token_version) VALUES
 
 -- RACAO IMAGENS
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Ração Premium Cães Adultos 10kg', 'Ração completa para cães adultos, com proteínas de alta qualidade e prebióticos.', 189.90, 25, 'https://picsum.photos/seed/racao-caes-10kg/600/600', 'RACAO', TRUE);
+('Ração Premium Cães Adultos 10kg', 'Ração completa para cães adultos, com proteínas de alta qualidade e prebióticos.', 189.90, 25, 'https://dompet-test.s3.us-east-2.amazonaws.com/royal-canin-1200x1200.png', 'RACAO', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Ração Gatos Castrados 3kg', 'Alimento balanceado para gatos castrados, controle de peso e saúde urinária.', 119.90, 30, 'https://www.petlove.com.br/images/products/266041/product/Ra%C3%A7%C3%A3o_Seca_PremieR_Pet_Golden_Gatos_Adultos_Castrados_Frango_-_10_Kg_31017079-3_1.jpg?1674072456', 'RACAO', TRUE);
+('Ração Gatos Castrados 3kg', 'Alimento balanceado para gatos castrados, controle de peso e saúde urinária.', 119.90, 30, 'https://dompet-test.s3.us-east-2.amazonaws.com/golden-gatos-castrados-3kg-1200x1200.png', 'RACAO', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Ração Filhotes Cães 2kg', 'Fórmula para crescimento saudável de filhotes, com DHA.', 79.90, 40, 'https://www.petlove.com.br/images/products/261658/product/Ra%C3%A7%C3%A3o_Seca_PremieR_Pet_Golden_Formula_C%C3%A3es_Filhotes_Frango_e_Arroz_-_20_Kg_31014043-5.jpg?1662031665', 'RACAO', TRUE);
+('Ração Filhotes Cães 2kg', 'Fórmula para crescimento saudável de filhotes, com DHA.', 79.90, 40, 'https://dompet-test.s3.us-east-2.amazonaws.com/racao-1200x1200.png', 'RACAO', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Ração Úmida Sachê Gatos 85g (12un)', 'Sachês completos e balanceados, alta palatabilidade.', 54.90, 35, 'https://m.media-amazon.com/images/I/31W40KgH0WL.jpg', 'RACAO', TRUE);
+('Ração Úmida Sachê Gatos 85g (12un)', 'Sachês completos e balanceados, alta palatabilidade.', 54.90, 35, 'https://dompet-test.s3.us-east-2.amazonaws.com/gatos-castrados-carne-1200x1200.png', 'RACAO', TRUE);
 
 -- HIGIENE
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Areia Higiênica 4kg', 'Areia com alto poder de aglomeração e controle de odores.', 39.90, 60, 'https://picsum.photos/seed/areia-higienica/600/600', 'HIGIENE', TRUE);
+('Areia Higiênica 4kg', 'Areia com alto poder de aglomeração e controle de odores.', 39.90, 60, 'https://dompet-test.s3.us-east-2.amazonaws.com/areia-1200x1200.png', 'HIGIENE', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Shampoo Neutro 500ml', 'Shampoo suave para todos os tipos de pelagem.', 27.90, 70, 'https://picsum.photos/seed/shampoo-pet/600/600', 'HIGIENE', TRUE);
+('Shampoo Neutro 500ml', 'Shampoo suave para todos os tipos de pelagem.', 27.90, 70, 'https://dompet-test.s3.us-east-2.amazonaws.com/shampoo-neutro-1200x1200.png', 'HIGIENE', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Condicionador Pelos Longos 300ml', 'Facilita a escovação e reduz nós.', 33.90, 40, 'https://picsum.photos/seed/condicionador-pet/600/600', 'HIGIENE', TRUE);
+('Condicionador Pelos Longos 300ml', 'Facilita a escovação e reduz nós.', 33.90, 40, 'https://dompet-test.s3.us-east-2.amazonaws.com/condicionador-1200x1200.png', 'HIGIENE', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Tapete Higiênico 30un', 'Tapetes absorventes com gel superabsorvente.', 79.90, 55, 'https://picsum.photos/seed/tapete-higienico/600/600', 'HIGIENE', TRUE);
+('Tapete Higiênico 30un', 'Tapetes absorventes com gel superabsorvente.', 79.90, 55, 'https://dompet-test.s3.us-east-2.amazonaws.com/tapete-1200x1200.png', 'HIGIENE', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Lenço Umedecido Pet 100un', 'Para limpeza rápida de patas e pelagem.', 24.90, 90, 'https://picsum.photos/seed/lenco-umedecido/600/600', 'HIGIENE', TRUE);
+('Lenço Umedecido Pet 100un', 'Para limpeza rápida de patas e pelagem.', 24.90, 90, 'https://dompet-test.s3.us-east-2.amazonaws.com/lenco-1200x1200.png', 'HIGIENE', TRUE);
 
--- MEDICAMENTOS IMAGENS
+-- MEDICAMENTOS
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Coleira Antipulgas P', 'Proteção contra pulgas e carrapatos por até 8 semanas.', 89.90, 20, 'https://www.petlove.com.br/images/products/273555/product/Coleira_Antipulgas_Coveli_Bullcat_para_Gatos_-_15_g_3102801.jpg?1695058700', 'MEDICAMENTOS', TRUE);
-
-INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Spray Antipulgas 100ml', 'Ação tópica rápida contra ectoparasitas.', 64.90, 25, 'https://www.petlove.com.br/images/products/283943/product/7898746060241.jpg?1719857288', 'MEDICAMENTOS', TRUE);
+('Coleira Antipulgas P', 'Proteção contra pulgas e carrapatos por até 8 semanas.', 89.90, 20, 'https://dompet-test.s3.us-east-2.amazonaws.com/coleira-antipulgas-1200x1200.png', 'MEDICAMENTOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Vermífugo Cães M 2cp', 'Combate verminoses intestinais comuns.', 34.90, 35, 'https://images.tcdn.com.br/img/img_prod/699275/vermifugo_vermivet_plus_biovet_2g_para_caes_com_2_comprimidos_973_1_28e3b0e714f2897eb690ca22e19a6b34.jpg', 'MEDICAMENTOS', TRUE);
+('Spray Antipulgas 100ml', 'Ação tópica rápida contra ectoparasitas.', 64.90, 25, 'https://dompet-test.s3.us-east-2.amazonaws.com/spruyantipulgas-1200x1200.png', 'MEDICAMENTOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Suplemento Ômega-3 60cáps', 'Suporte à pele, pelagem e articulações.', 79.90, 28, 'https://m.media-amazon.com/images/I/51uM7PSf+gL.jpg', 'MEDICAMENTOS', TRUE);
-
--- ACESSORIOS 
-INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Coleira Ajustável Nylon M', 'Nylon resistente com fivela de engate rápido.', 29.90, 100, 'https://picsum.photos/seed/coleira-nylon/600/600', 'ACESSORIOS', TRUE);
+('Vermífugo Cães M 2cp', 'Combate verminoses intestinais comuns.', 34.90, 35, 'https://dompet-test.s3.us-east-2.amazonaws.com/vermifugocaes-1200x1200.png', 'MEDICAMENTOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Guia Retrátil 5m', 'Para cães até 20kg, travamento rápido.', 69.90, 40, 'https://picsum.photos/seed/guia-retratil/600/600', 'ACESSORIOS', TRUE);
+('Suplemento Ômega-3 60cáps', 'Suporte à pele, pelagem e articulações.', 79.90, 28, 'https://dompet-test.s3.us-east-2.amazonaws.com/omega3-1200x1200.png', 'MEDICAMENTOS', TRUE);
+
+-- ACESSORIOS
+INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
+('Coleira Ajustável Nylon M', 'Nylon resistente com fivela de engate rápido.', 29.90, 100, 'https://dompet-test.s3.us-east-2.amazonaws.com/coleitaajustavel-1200x1200.png', 'ACESSORIOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Peitoral Conforto M', 'Ajuste anatômico com acolchoamento.', 59.90, 32, 'https://picsum.photos/seed/peitoral/600/600', 'ACESSORIOS', TRUE);
+('Guia Retrátil 5m', 'Para cães até 20kg, travamento rápido.', 69.90, 40, 'https://dompet-test.s3.us-east-2.amazonaws.com/guia-retratil-1200x1200.png', 'ACESSORIOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Comedouro Inox 700ml', 'Tigela de aço inox com base antiderrapante.', 34.90, 75, 'https://picsum.photos/seed/comedouro-inox/600/600', 'ACESSORIOS', TRUE);
+('Peitoral Conforto M', 'Ajuste anatômico com acolchoamento.', 59.90, 32, 'https://dompet-test.s3.us-east-2.amazonaws.com/peitoral-confroto-1200x1200.png', 'ACESSORIOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Bebedouro Portátil 500ml', 'Garrafa com dispenser para passeios.', 32.90, 50, 'https://picsum.photos/seed/bebedouro-portatil/600/600', 'ACESSORIOS', TRUE);
+('Comedouro Inox 700ml', 'Tigela de aço inox com base antiderrapante.', 34.90, 75, 'https://dompet-test.s3.us-east-2.amazonaws.com/comedouro-inox-1200x1200.png', 'ACESSORIOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Cama Pet Redonda M', 'Cama macia com bordas elevadas.', 139.90, 22, 'https://picsum.photos/seed/cama-pet/600/600', 'ACESSORIOS', TRUE);
+('Bebedouro Portátil 500ml', 'Garrafa com dispenser para passeios.', 32.90, 50, 'https://dompet-test.s3.us-east-2.amazonaws.com/bebedouro-portatil-1200x1200.png', 'ACESSORIOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Casinha Plástica M', 'Abrigo confortável e higiênico para áreas externas.', 249.90, 12, 'https://picsum.photos/seed/casinha-pet/600/600', 'ACESSORIOS', TRUE);
+('Cama Pet Redonda M', 'Cama macia com bordas elevadas.', 139.90, 22, 'https://dompet-test.s3.us-east-2.amazonaws.com/cama-redonda-m-1200x1200.png', 'ACESSORIOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Transportadora Nº 2', 'Transportadora ventilada com trava de segurança.', 179.90, 18, 'https://picsum.photos/seed/transportadora/600/600', 'ACESSORIOS', TRUE);
-
--- BRINQUEDOS IMAGENS
-INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Brinquedo Corda Nó', 'Ajuda na mastigação e alivia o estresse.', 19.90, 120, 'https://dcdn-us.mitiendanube.com/stores/002/456/384/products/faa41714c52ecbd254419c6f6e3c4e08-5f1ec1a5b10b9f187c16868545821376-1024-1024.jpg', 'BRINQUEDOS', TRUE);
+('Casinha Plástica M', 'Abrigo confortável e higiênico para áreas externas.', 249.90, 12, 'https://dompet-test.s3.us-east-2.amazonaws.com/casa-plastica-1200x1200.png', 'ACESSORIOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Bola Interativa com Petiscos', 'Dispensa petiscos e estimula o enriquecimento.', 44.90, 45, 'https://www.petlove.com.br/images/products/268006/product/31027523726_Brinquedo_Interativo_Bola_Porta_Petisco_3.jpg?1682452177', 'BRINQUEDOS', TRUE);
+('Transportadora Nº 2', 'Transportadora ventilada com trava de segurança.', 179.90, 18, 'https://dompet-test.s3.us-east-2.amazonaws.com/transportadora-1200x1200.png', 'ACESSORIOS', TRUE);
+
+-- BRINQUEDOS / OUTDOOR
+INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
+('Brinquedo Corda Nó', 'Ajuda na mastigação e alivia o estresse.', 19.90, 120, 'https://dompet-test.s3.us-east-2.amazonaws.com/brinquedo-corda-no-1200x1200.png', 'BRINQUEDOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Varinha com Penas', 'Estimula o instinto de caça dos gatos.', 24.90, 85, 'https://img.irroba.com.br/fit-in/2000x2000/filters:fill(fff):quality(80)/brincalh/catalog/brinquedos-brincat/varinhas/penas-28-5/39142-39186-1.jpg', 'OUTDOOR', TRUE);
+('Bola Interativa com Petiscos', 'Dispensa petiscos e estimula o enriquecimento.', 44.90, 45, 'https://dompet-test.s3.us-east-2.amazonaws.com/bola-interativa-petiscos-1200x1200.png', 'BRINQUEDOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Pelúcia Interativa', 'Brinquedo macio que emite sons.', 39.90, 60, 'https://m.media-amazon.com/images/I/61NpAOvJ9RL._UF894,1000_QL80_.jpg', 'OUTDOOR', TRUE);
+('Varinha com Penas', 'Estimula o instinto de caça dos gatos.', 24.90, 85, 'https://dompet-test.s3.us-east-2.amazonaws.com/varinha-com-penas-1200x1200.png', 'OUTDOOR', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Brinquedo de Borracha', 'Resistente e ideal para mastigação.', 29.90, 100, 'https://petbox.vteximg.com.br/arquivos/ids/164614-1000-1000/165d5e0bff31c73f1186c54c096a70763f1551fa.jpg?v=638139029467170000', 'BRINQUEDOS', TRUE);
+('Pelúcia Interativa', 'Brinquedo macio que emite sons.', 39.90, 60, 'https://dompet-test.s3.us-east-2.amazonaws.com/pelucia-interativa-1200x1200.png', 'OUTDOOR', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Brinquedo de Pelúcia', 'Brinquedo macio e aconchegante.', 49.90, 80, 'https://www.petlove.com.br/images/products/148/product/00.jpg?1627499970', 'BRINQUEDOS', TRUE);
+('Brinquedo de Borracha', 'Resistente e ideal para mastigação.', 29.90, 100, 'https://dompet-test.s3.us-east-2.amazonaws.com/brinquedo-borracha-1200x1200.png', 'BRINQUEDOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Arranhador para Gatos', 'Arranhador com plataforma e brinquedos pendurados.', 129.90, 30, 'https://www.petlove.com.br/images/products/324946/product/1880-5.jpg?1736541080', 'OUTDOOR', TRUE);
+('Brinquedo de Pelúcia', 'Brinquedo macio e aconchegante.', 49.90, 80, 'https://dompet-test.s3.us-east-2.amazonaws.com/brinquedo-pelucia-1200x1200.png', 'BRINQUEDOS', TRUE);
 
 INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
-('Caminha para Gatos', 'Caminha confortável com design moderno.', 99.90, 25, 'https://estiloeconforto.fbitsstatic.net/img/p/cama-pet-digital-print-50cm-x-40cm-para-caes-e-gatos-gato-meu-pet-183763/380998.jpg?w=700&h=700&v=no-value','OUTDOOR', TRUE);
+('Arranhador para Gatos', 'Arranhador com plataforma e brinquedos pendurados.', 129.90, 30, 'https://dompet-test.s3.us-east-2.amazonaws.com/arranhador-gatos-1200x1200.png', 'OUTDOOR', TRUE);
+
+INSERT INTO produtos (nome, descricao, preco, estoque, imagem_url, categoria, ativo) VALUES
+('Caminha para Gatos', 'Caminha confortável com design moderno.', 99.90, 25, 'https://dompet-test.s3.us-east-2.amazonaws.com/caminha-gatos-1200x1200.png', 'OUTDOOR', TRUE);
