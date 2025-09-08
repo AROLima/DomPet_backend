@@ -442,7 +442,94 @@ sequenceDiagram
 
 ---
 
-## 🗺️ Notas
+## � Deploy (Render + PostgreSQL)
+
+### 1. Variáveis de ambiente (Render)
+Defina no serviço Web (Spring Boot):
+
+| Key | Exemplo / Observação |
+|-----|-----------------------|
+| DB_URL | jdbc:postgresql://<host>:5432/<db> |
+| DB_USERNAME | dompet_user |
+| DB_PASSWORD | ******** |
+| APP_JWT_SECRET | Base64 >= 32 bytes (ex: `openssl rand -base64 48`) |
+| ALLOWED_ORIGINS | https://dompet-frontend.onrender.com |
+| JAVA_TOOL_OPTIONS | -Xms256m -Xmx512m (ajuste conforme plano) |
+
+### 2. Perfil de produção
+O serviço deve subir com: `--spring.profiles.active=prod`.
+
+### 3. Build & Start Command (Render)
+- Build: `./mvnw -DskipTests package`
+- Start: `java -jar target/api-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod`
+
+### 4. Migrações
+Flyway aplica automaticamente `V1__baseline.sql` no primeiro deploy. Novas alterações de schema → crie `V2__...`, `V3__...` etc.
+
+### 5. CORS
+- Em dev: origem liberada (`*`).
+- Em prod: defina `ALLOWED_ORIGINS` (vírgulas para múltiplos). O bean lê `app.cors.allowed-origins`.
+
+### 6. Frontend (Flutter Web)
+Se for servir separado:
+- Gere build: `flutter build web --dart-define=BASE_URL=https://dompet-api.onrender.com`.
+- Faça deploy como Static Site no Render (apontar para `build/web`).
+
+Se quiser unificar (opcional):
+1. Build web.
+2. Copie o conteúdo de `build/web` para `src/main/resources/static` antes do empacotamento.
+3. Ajuste `BASE_URL` para relativo (ex: somente `/`).
+
+#### Unificação (detalhes)
+O filtro `SpaFallbackFilter` encaminha qualquer rota de navegador (sem extensão e Accept text/html) para `index.html`, permitindo rotas do Flutter sem 404.
+
+Defina no build:
+```
+flutter build web --dart-define=BASE_URL=/
+```
+
+Opcional: estratégia de URL (sem #):
+```dart
+import 'package:flutter_web_plugins/url_strategy.dart';
+
+void main() {
+  setUrlStrategy(PathUrlStrategy());
+  runApp(const MyApp());
+}
+```
+
+Se hospedar em ambiente sem fallback server (não é o caso aqui) use hash:
+```dart
+import 'package:flutter_web_plugins/url_strategy.dart';
+void main() {
+  useHashUrlStrategy();
+  runApp(const MyApp());
+}
+```
+
+Checklist antes de empacotar unificado:
+- [ ] Limpar `src/main/resources/static` (exceto assets próprios)
+- [ ] Copiar novos arquivos de `build/web`
+- [ ] Confirmar presença de `index.html`, `flutter.js`, `assets/`
+- [ ] Gerar jar: `./mvnw -DskipTests package`
+- [ ] Executar com `--spring.profiles.active=prod`
+
+### 7. Saúde / Teste rápido pós-deploy
+```bash
+curl -i https://dompet-api.onrender.com/produtos
+```
+Deve retornar `200` com lista (mesmo sem autenticação).
+
+### 8. Tokens
+Rotacione `APP_JWT_SECRET` apenas se invalidar todos os tokens existentes (efeito logout global). Para logout seletivo já existe `token_version`.
+
+### 9. Observabilidade (futuro)
+- Adicionar Spring Boot Actuator.
+- Configurar logs estruturados (JSON) e métricas.
+
+---
+
+## �🗺️ Notas
 - `schema.sql` garante coluna `usuarios.token_version` com default em bancos que precisarem.
 
 ---
