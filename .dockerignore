@@ -1,0 +1,10 @@
+target
+.git
+.gitignore
+README.md
+mvnw.cmd
+mvnw
+Dockerfile
+**/.DS_Store
+**/node_modules
+**/.idea
