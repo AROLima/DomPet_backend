@@ -44,7 +44,7 @@ public class CarrinhoService {
     /** Obtém carrinho aberto do usuário ou cria um novo. */
     @Transactional
     public Carrinho getOrCreateCart(String email) {
-        return carrinhoRepo.findByUsuarioEmailAndStatus(email, CartStatus.ABERTO)
+        return carrinhoRepo.findFirstByUsuarioEmailAndStatusOrderByUpdatedAtDesc(email, CartStatus.ABERTO)
                 .orElseGet(() -> {
                     var user = usuariosRepo.findByEmail(email)
                             .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
@@ -58,8 +58,8 @@ public class CarrinhoService {
     /** Retorna o carrinho aberto (criando se não existir) já mapeado em DTO. */
     @Transactional(readOnly = true)
     public CartResponseDto getCart(String email) {
-        var cart = carrinhoRepo.findByUsuarioEmailAndStatus(email, CartStatus.ABERTO)
-                .orElseGet(() -> getOrCreateCart(email));
+    var cart = carrinhoRepo.findFirstByUsuarioEmailAndStatusOrderByUpdatedAtDesc(email, CartStatus.ABERTO)
+        .orElseGet(() -> getOrCreateCart(email));
         var items = cart.getItens().stream().map(i -> new CartResponseDto.ItemDto(
                 i.getId(),
                 i.getProduto().getId(),
