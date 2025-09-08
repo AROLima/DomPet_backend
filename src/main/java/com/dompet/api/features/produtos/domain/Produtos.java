@@ -32,7 +32,7 @@ public class Produtos {
     @Lob // descrição longa; se for curta, pode remover @Lob
     private String descricao;
 
-    @Column(precision = 10, scale = 2, nullable = false)
+    @Column(precision = 12, scale = 2, nullable = false)
     private BigDecimal preco;
 
     private Integer estoque;
