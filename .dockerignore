@@ -3,7 +3,7 @@ target
 .gitignore
 README.md
 mvnw.cmd
-mvnw
+# manter mvnw para o build funcionar
 Dockerfile
 **/.DS_Store
 **/node_modules
