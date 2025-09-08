@@ -35,6 +35,7 @@ public class Produtos {
     @Column(precision = 12, scale = 2, nullable = false)
     private BigDecimal preco;
 
+    @Column(nullable = false)
     private Integer estoque;
     private String imagemUrl;
 
