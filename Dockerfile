@@ -2,7 +2,9 @@
 FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 COPY .mvn/ .mvn/
-COPY mvnw mvnw.cmd pom.xml ./
+# Copia apenas os arquivos necessários para build em ambiente Linux (mvnw.cmd opcional)
+COPY mvnw pom.xml ./
+RUN chmod +x mvnw
 # Pre-fetch dependencies (no sources yet for better layer caching)
 RUN ./mvnw -q -DskipTests dependency:go-offline
 # Copy sources
