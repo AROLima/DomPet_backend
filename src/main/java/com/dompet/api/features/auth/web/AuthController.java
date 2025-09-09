@@ -145,13 +145,17 @@ public class AuthController {
       content = @Content(schema = @Schema(implementation = com.dompet.api.features.auth.dto.AuthResponseDto.class),
           examples = @ExampleObject(value = "{\n  \"token\": \"<jwt>\",\n  \"expiresIn\": 3600000\n}")))
   public ResponseEntity<AuthResponseDto> login(@RequestBody @Valid AuthLoginDto dto) {
-    // Delegamos a autenticação para o método auxiliar
-    var token = loginInternal(dto.email().trim(), dto.senha());
-    return ResponseEntity.ok()
-        .cacheControl(CacheControl.noStore())
-        .header("Pragma", "no-cache")
-        .header("X-API-Version", "1")
-        .body(new AuthResponseDto(token, tokenService.getExpirationMs()));
+    try {
+      var token = loginInternal(dto.email().trim(), dto.senha());
+      return ResponseEntity.ok()
+          .cacheControl(CacheControl.noStore())
+          .header("Pragma", "no-cache")
+          .header("X-API-Version", "1")
+          .body(new AuthResponseDto(token, tokenService.getExpirationMs()));
+    } catch (org.springframework.security.core.AuthenticationException ex) {
+      // Credenciais inválidas -> 401
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
   }
 
 
