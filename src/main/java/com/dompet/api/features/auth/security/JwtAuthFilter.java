@@ -113,12 +113,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
           return;
         }
       }
-      // Fora do grace ou refresh inválido: reduz nível para debug e loga resumo em WARN apenas 1x se muito acima do limite
-      if (secondsSinceExpiration > refreshGraceSeconds * 4) {
-        log.warn("JWT expirado há {}s (limite {}s) uri={}", secondsSinceExpiration, refreshGraceSeconds, uri);
-      } else {
-        log.debug("JWT expirado rejeitado ({}s > {}s) uri={}", secondsSinceExpiration, refreshGraceSeconds, uri);
-      }
+  // Fora do grace ou refresh inválido: apenas DEBUG para não poluir logs em produção
+  log.debug("JWT expirado rejeitado ({}s > {}s) uri={}", secondsSinceExpiration, refreshGraceSeconds, uri);
       response.setStatus(HttpStatus.UNAUTHORIZED.value());
     } catch (JwtException e) {
       log.warn("Falha ao validar JWT: {}", e.getMessage());
