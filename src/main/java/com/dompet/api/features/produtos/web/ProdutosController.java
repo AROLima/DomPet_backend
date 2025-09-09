@@ -31,6 +31,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.headers.Header;
 import org.springframework.data.domain.PageRequest;
+import com.dompet.api.features.produtos.dto.ProdutoSuggestionDto;
 
 /**
  * Controller fino para Produtos.
@@ -210,16 +211,14 @@ public class ProdutosController {
     @ApiResponse(responseCode = "200", description = "OK",
         content = @Content(mediaType = "application/json",
             examples = @ExampleObject(value = "[{\n  \"id\":1,\n  \"nome\":\"Ração X\",\n  \"descricao\":\"Sabor frango\",\n  \"preco\":199.9,\n  \"estoque\":10,\n  \"imagemUrl\":\"https://.../racao.png\",\n  \"categoria\":\"RACAO\",\n  \"ativo\":true,\n  \"sku\":\"RACAO-X-10KG\"\n}]")))
-    public ResponseEntity<List<ProdutosReadDto>> suggestions(
+    public ResponseEntity<List<ProdutoSuggestionDto>> suggestions(
             @RequestParam(name = "q", required = false) String q,
             @RequestParam(name = "limit", defaultValue = "8") int limit,
             @RequestHeader(value = "If-None-Match", required = false) String inm
     ) {
-        var pageable = PageRequest.of(0, Math.max(1, Math.min(limit, 50)));
-        var list = service.search(q, null, pageable).getContent();
-        // ETag composto de entradas principais para evitar recomputar corpo
+        var list = service.suggestions(q, limit);
         var etag = '"' + Integer.toHexString(java.util.Objects.hash(list.size(),
-            list.stream().map(d -> java.util.Arrays.asList(d.id(), d.nome(), d.preco(), d.estoque(), d.imagemUrl(), d.categoria(), d.ativo(), d.sku())).toList())) + '"';
+            list.stream().map(d -> java.util.Arrays.asList(d.id(), d.nome(), d.imagemUrl(), d.sku())).toList())) + '"';
         if (inm != null && inm.equals(etag)) {
             return ResponseEntity.status(304).eTag(etag).build();
         }

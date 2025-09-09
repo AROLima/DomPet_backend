@@ -88,16 +88,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
       chain.doFilter(request, response);
     } catch (ExpiredJwtException ex) {
-      // Token expirado. Se for um pedido de /auth/refresh dentro do grace period, ainda permitimos autenticar
       String uri = request.getRequestURI();
       long secondsSinceExpiration = (System.currentTimeMillis() - ex.getClaims().getExpiration().getTime()) / 1000L;
-      if ("/auth/refresh".equals(uri) && secondsSinceExpiration <= refreshGraceSeconds) {
+      boolean isRefresh = "/auth/refresh".equals(uri);
+
+      // Evita múltiplos logs/execuções para o mesmo request (por encadeamento de filtros)
+      if (request.getAttribute("_expiredHandled") != null) {
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        return;
+      }
+      request.setAttribute("_expiredHandled", Boolean.TRUE);
+
+      if (isRefresh && secondsSinceExpiration <= refreshGraceSeconds) {
         var claims = ex.getClaims();
         var email = claims.getSubject();
         Integer verToken = claims.get("ver", Integer.class);
         var user = usuariosRepo.findByEmail(email).orElse(null);
         if (user != null && user.getTokenVersion().equals(verToken)) {
-          log.debug("Aceitando token expirado (grace {}s) para refresh de {}", secondsSinceExpiration, email);
+          log.debug("Aceitando token expirado ({}s) dentro do grace {}s para refresh de {}", secondsSinceExpiration, refreshGraceSeconds, email);
           var auth = new UsernamePasswordAuthenticationToken(
               email, null, user.getRole().getAuthorities());
           SecurityContextHolder.getContext().setAuthentication(auth);
@@ -105,7 +113,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
           return;
         }
       }
-      log.warn("Falha ao validar JWT expirado: {} (uri={}, grace={}s excedido? {})", ex.getMessage(), uri, refreshGraceSeconds, secondsSinceExpiration > refreshGraceSeconds);
+      // Fora do grace ou refresh inválido: reduz nível para debug e loga resumo em WARN apenas 1x se muito acima do limite
+      if (secondsSinceExpiration > refreshGraceSeconds * 4) {
+        log.warn("JWT expirado há {}s (limite {}s) uri={}", secondsSinceExpiration, refreshGraceSeconds, uri);
+      } else {
+        log.debug("JWT expirado rejeitado ({}s > {}s) uri={}", secondsSinceExpiration, refreshGraceSeconds, uri);
+      }
       response.setStatus(HttpStatus.UNAUTHORIZED.value());
     } catch (JwtException e) {
       log.warn("Falha ao validar JWT: {}", e.getMessage());

@@ -12,6 +12,7 @@ import com.dompet.api.features.produtos.domain.Categorias;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -32,6 +33,10 @@ public class ProdutosService {
     // Mapeamentos entre entidade e DTOs
     private ProdutosReadDto toDto(Produtos p) {
         return new ProdutosReadDto(p.getId(), p.getNome(), p.getDescricao(), p.getPreco(), p.getEstoque(), p.getImagemUrl(), p.getCategoria(), p.getAtivo(), p.getSku());
+    }
+
+    private ProdutoSuggestionDto toSuggestion(Produtos p) {
+        return new ProdutoSuggestionDto(p.getId(), p.getNome(), p.getImagemUrl(), p.getSku());
     }
 
     private Produtos fromCreate(ProdutosCreateDto dto) {
@@ -76,6 +81,18 @@ public class ProdutosService {
             return repo.findByCategoriaAndAtivoTrue(categoria, pageable).map(this::toDto);
         }
         return repo.findAllByAtivoTrue(pageable).map(this::toDto);
+    }
+
+    /** Sugestões leves para autocomplete. Filtra apenas ativos. */
+    @Transactional(readOnly = true)
+    public List<ProdutoSuggestionDto> suggestions(String q, int limit) {
+        int size = Math.max(1, Math.min(limit, 50));
+        // Se consulta vazia ou muito curta (ex: <2 chars) retorna lista vazia para evitar full-scan constante
+        if (q == null || q.isBlank() || q.trim().length() < 2) {
+            return List.of();
+        }
+        var page = repo.findByNomeContainingIgnoreCaseAndAtivoTrue(q.trim(), PageRequest.of(0, size));
+        return page.stream().map(this::toSuggestion).toList();
     }
 
     /** Busca por ID; lança 404 (EntityNotFoundException) quando não encontrado. */
