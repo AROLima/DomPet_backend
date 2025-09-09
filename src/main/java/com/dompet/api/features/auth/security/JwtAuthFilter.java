@@ -9,6 +9,7 @@ package com.dompet.api.features.auth.security;
 import java.io.IOException;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +21,7 @@ import com.dompet.api.features.auth.token.TokenService;
 import com.dompet.api.features.usuarios.repo.UsuariosRepository;
 
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.micrometer.common.lang.NonNull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -41,6 +43,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
   private final TokenService tokenService;
   private final UsuariosRepository usuariosRepo;
+  @Value("${app.jwt.refresh-grace-seconds:30}")
+  private long refreshGraceSeconds; // tempo máximo em segundos após expiração para ainda aceitar /auth/refresh
   private static final Logger log = LoggerFactory.getLogger(JwtAuthFilter.class);
 
   public JwtAuthFilter(TokenService tokenService, UsuariosRepository usuariosRepo) {
@@ -60,7 +64,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     var token = tokenService.resolveToken(request);
     if (token == null) { chain.doFilter(request, response); return; }
 
-    try {
+  try {
       // 2) Valida assinatura/expiração e obtém claims
       var claims = tokenService.parseClaims(token);
       var email = claims.getSubject();
@@ -83,6 +87,26 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       SecurityContextHolder.getContext().setAuthentication(auth);
 
       chain.doFilter(request, response);
+    } catch (ExpiredJwtException ex) {
+      // Token expirado. Se for um pedido de /auth/refresh dentro do grace period, ainda permitimos autenticar
+      String uri = request.getRequestURI();
+      long secondsSinceExpiration = (System.currentTimeMillis() - ex.getClaims().getExpiration().getTime()) / 1000L;
+      if ("/auth/refresh".equals(uri) && secondsSinceExpiration <= refreshGraceSeconds) {
+        var claims = ex.getClaims();
+        var email = claims.getSubject();
+        Integer verToken = claims.get("ver", Integer.class);
+        var user = usuariosRepo.findByEmail(email).orElse(null);
+        if (user != null && user.getTokenVersion().equals(verToken)) {
+          log.debug("Aceitando token expirado (grace {}s) para refresh de {}", secondsSinceExpiration, email);
+          var auth = new UsernamePasswordAuthenticationToken(
+              email, null, user.getRole().getAuthorities());
+          SecurityContextHolder.getContext().setAuthentication(auth);
+          chain.doFilter(request, response);
+          return;
+        }
+      }
+      log.warn("Falha ao validar JWT expirado: {} (uri={}, grace={}s excedido? {})", ex.getMessage(), uri, refreshGraceSeconds, secondsSinceExpiration > refreshGraceSeconds);
+      response.setStatus(HttpStatus.UNAUTHORIZED.value());
     } catch (JwtException e) {
       log.warn("Falha ao validar JWT: {}", e.getMessage());
       response.setStatus(HttpStatus.UNAUTHORIZED.value());
