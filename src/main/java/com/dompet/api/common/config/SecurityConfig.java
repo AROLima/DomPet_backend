@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -34,6 +35,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+
+  @Value("${app.cors.allowed-origins:}")
+  private String allowedOriginsProp;
 
   @Bean
   /**
@@ -97,28 +101,29 @@ public class SecurityConfig {
    */
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration cfg = new CorsConfiguration();
-  // Linha: permite qualquer origem (útil em dev); substituir por lista de domínios em prod
-    cfg.addAllowedOriginPattern("*"); // TODO: restringir em produção
-  // Linha: permitimos explicitly Authorization e Content-Type para passar o token e JSON
-  // Permitir todos os headers requisitados no preflight (inclui If-Match/If-None-Match)
-  cfg.addAllowedHeader("*");
-  // E, por clareza, adiciona explicitamente os mais usados
-  cfg.addAllowedHeader("Authorization");
-  cfg.addAllowedHeader("Content-Type");
-  cfg.addAllowedHeader("Accept");
-  cfg.addAllowedHeader("If-Match"); // Para atualizações condicionais por ETag
-  cfg.addAllowedHeader("If-None-Match"); // Para cache condicional em GET
-  // Linha: habilita métodos HTTP usados pela API
+
+    // If property provided, split by comma; else allow all (dev fallback)
+    if (allowedOriginsProp != null && !allowedOriginsProp.isBlank()) {
+      for (String origin : allowedOriginsProp.split(",")) {
+        String trimmed = origin.trim();
+        if (!trimmed.isEmpty()) cfg.addAllowedOrigin(trimmed);
+      }
+    } else {
+      cfg.addAllowedOriginPattern("*");
+    }
+
+    cfg.addAllowedHeader("*");
     cfg.addAllowedMethod("GET");
     cfg.addAllowedMethod("POST");
     cfg.addAllowedMethod("PUT");
     cfg.addAllowedMethod("PATCH");
     cfg.addAllowedMethod("DELETE");
     cfg.addAllowedMethod("OPTIONS");
-  // Linha: expõe cabeçalhos que o front-end pode querer ler (ETag, Location etc.)
-  cfg.addExposedHeader("ETag");
-  cfg.addExposedHeader("Location");
-  cfg.addExposedHeader("X-API-Version");
+    cfg.addExposedHeader("ETag");
+    cfg.addExposedHeader("Location");
+    cfg.addExposedHeader("X-API-Version");
+    cfg.setAllowCredentials(true);
+
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", cfg);
     return source;

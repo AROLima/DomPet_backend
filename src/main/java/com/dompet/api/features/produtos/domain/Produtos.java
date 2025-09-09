@@ -29,12 +29,13 @@ public class Produtos {
 
     private String nome;
 
-    @Lob // descrição longa; se for curta, pode remover @Lob
+    // Removido @Lob para alinhar com coluna TEXT existente e evitar exigência de CLOB
     private String descricao;
 
-    @Column(precision = 10, scale = 2, nullable = false)
+    @Column(precision = 12, scale = 2, nullable = false)
     private BigDecimal preco;
 
+    @Column(nullable = false)
     private Integer estoque;
     private String imagemUrl;
 

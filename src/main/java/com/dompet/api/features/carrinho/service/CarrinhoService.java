@@ -56,7 +56,7 @@ public class CarrinhoService {
     }
 
     /** Retorna o carrinho aberto (criando se não existir) já mapeado em DTO. */
-    @Transactional(readOnly = true)
+    @Transactional // permite criar carrinho (escrita) caso não exista
     public CartResponseDto getCart(String email) {
     var cart = carrinhoRepo.findFirstByUsuarioEmailAndStatusOrderByUpdatedAtDesc(email, CartStatus.ABERTO)
         .orElseGet(() -> getOrCreateCart(email));

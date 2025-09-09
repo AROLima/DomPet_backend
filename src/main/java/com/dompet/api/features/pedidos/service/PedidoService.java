@@ -84,6 +84,7 @@ public class PedidoService {
             ItemPedido ip = new ItemPedido();
             ip.setPedido(pedido);
             ip.setProduto(p);
+            ip.setNomeProduto(p.getNome()); // snapshot do nome
             ip.setQuantidade(item.getQuantidade());
             ip.setPrecoUnitario(p.getPreco()); // snapshot do preço no momento do pedido
             ip.calcularSubtotal();

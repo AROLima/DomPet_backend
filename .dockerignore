@@ -1,0 +1,10 @@
+target
+.git
+.gitignore
+README.md
+mvnw.cmd
+# manter mvnw para o build funcionar
+Dockerfile
+**/.DS_Store
+**/node_modules
+**/.idea
