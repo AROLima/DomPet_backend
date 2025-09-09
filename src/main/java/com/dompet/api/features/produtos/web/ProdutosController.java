@@ -30,7 +30,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.headers.Header;
-import org.springframework.data.domain.PageRequest;
 import com.dompet.api.features.produtos.dto.ProdutoSuggestionDto;
 
 /**
