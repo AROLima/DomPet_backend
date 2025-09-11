@@ -385,11 +385,6 @@ Observações:
 5. **POST** `/pedidos/checkout`
 6. **GET** `/pedidos`
 
-Extras de carrinho (delta):
-- `PATCH /carrinho/{carrinhoId}/itens/{produtoId}?delta=1`
-- `POST /carrinho/{carrinhoId}/itens/{produtoId}/incrementar?by=1`
-- `POST /carrinho/{carrinhoId}/itens/{produtoId}/decrementar?by=1`
-
 Coleção pronta (import): `docs/Insomnia_DomPet_API.json`.
 
 ---
@@ -469,6 +464,7 @@ Flyway aplica automaticamente `V1__baseline.sql` no primeiro deploy. Novas alter
 Se for servir separado:
 - Gere build: `flutter build web --dart-define=BASE_URL=https://dompet-api.onrender.com`.
 - Faça deploy como Static Site no Render (apontar para `build/web`).
+- Repositório do front-end: `https://github.com/AROLima/DomPet_flutter`
 
 
 ## �🗺️ Notas
