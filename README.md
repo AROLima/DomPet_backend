@@ -9,7 +9,7 @@
 - Bean Validation (Jakarta)
 - Lombok
 - Swagger / OpenAPI
-
+- PostgreSQL 17
 ---
 
 ## 🔗 Links rápidos
@@ -353,11 +353,6 @@ INSERT INTO usuarios (nome, email, senha, role, ativo) VALUES
 - `DELETE /cart/items/{itemId}` — remove item
 - `DELETE /cart` — limpa carrinho
 
-#### Delta de quantidade (API dedicada)
-- `PATCH /carrinho/{carrinhoId}/itens/{produtoId}?delta=INT` — aplica delta (positivo/negativo)
-- `POST /carrinho/{carrinhoId}/itens/{produtoId}/incrementar?by=INT` — açúcar para delta positivo
-- `POST /carrinho/{carrinhoId}/itens/{produtoId}/decrementar?by=INT` — açúcar para delta negativo
-
 Observações:
 - Use o `id` retornado em `GET /cart` como `{carrinhoId}`.
 - Regras: `delta != 0`, não decrementar item inexistente, resultado não pode ser negativo nem exceder estoque; resultado 0 remove o item.
@@ -475,59 +470,6 @@ Se for servir separado:
 - Gere build: `flutter build web --dart-define=BASE_URL=https://dompet-api.onrender.com`.
 - Faça deploy como Static Site no Render (apontar para `build/web`).
 
-Se quiser unificar (opcional):
-1. Build web.
-2. Copie o conteúdo de `build/web` para `src/main/resources/static` antes do empacotamento.
-3. Ajuste `BASE_URL` para relativo (ex: somente `/`).
-
-#### Unificação (detalhes)
-O filtro `SpaFallbackFilter` encaminha qualquer rota de navegador (sem extensão e Accept text/html) para `index.html`, permitindo rotas do Flutter sem 404.
-
-Defina no build:
-```
-flutter build web --dart-define=BASE_URL=/
-```
-
-Opcional: estratégia de URL (sem #):
-```dart
-import 'package:flutter_web_plugins/url_strategy.dart';
-
-void main() {
-  setUrlStrategy(PathUrlStrategy());
-  runApp(const MyApp());
-}
-```
-
-Se hospedar em ambiente sem fallback server (não é o caso aqui) use hash:
-```dart
-import 'package:flutter_web_plugins/url_strategy.dart';
-void main() {
-  useHashUrlStrategy();
-  runApp(const MyApp());
-}
-```
-
-Checklist antes de empacotar unificado:
-- [ ] Limpar `src/main/resources/static` (exceto assets próprios)
-- [ ] Copiar novos arquivos de `build/web`
-- [ ] Confirmar presença de `index.html`, `flutter.js`, `assets/`
-- [ ] Gerar jar: `./mvnw -DskipTests package`
-- [ ] Executar com `--spring.profiles.active=prod`
-
-### 7. Saúde / Teste rápido pós-deploy
-```bash
-curl -i https://dompet-api.onrender.com/produtos
-```
-Deve retornar `200` com lista (mesmo sem autenticação).
-
-### 8. Tokens
-Rotacione `APP_JWT_SECRET` apenas se invalidar todos os tokens existentes (efeito logout global). Para logout seletivo já existe `token_version`.
-
-### 9. Observabilidade (futuro)
-- Adicionar Spring Boot Actuator.
-- Configurar logs estruturados (JSON) e métricas.
-
----
 
 ## �🗺️ Notas
 - `schema.sql` garante coluna `usuarios.token_version` com default em bancos que precisarem.
