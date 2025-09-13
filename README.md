@@ -399,6 +399,52 @@ Coleção pronta (import): `docs/Insomnia_DomPet_API.json`.
 
 ## CORS
 - Dev: liberado `Authorization` e `Content-Type`, métodos GET/POST/PUT/PATCH/DELETE/OPTIONS e origens `*`.
+
+---
+
+## 🧪 Testes
+
+### Tipos
+- **Integração (MockMvc + SpringBootTest)**: Validam fluxo HTTP completo, segurança, validação Bean Validation e formatação de erros (ProblemDetail).
+- **Unidade (futuro / opcional)**: Serviços e utilitários puros.
+
+### Estratégias adotadas
+- **Banco isolado por classe**: Cada classe define um `@DynamicPropertySource` gerando URL H2 única (`jdbc:h2:mem:dompet_<rand>`). Evita colisões de `data.sql` e violações de UNIQUE.
+- **ProblemDetail unificado**: Erros convertidos em RFC 7807 via `ApiErrors` + `ErrorResponseFactory` (campos extras: `timestamp`, `error`, `code`, `instance`, `path`).
+- **ETag / Concurrency**: Testes para `If-None-Match` (GET) e `If-Match` (PUT) cobrindo `200`, `304` e `412 Precondition Failed`.
+- **Soft Delete**: `DELETE /produtos/{id}` marca `ativo=false`; teste confirma flag e recuperabilidade via GET direto.
+- **Conflitos (409)**: SKU duplicado gera `DataIntegrityViolationException` → mapeado para ProblemDetail `409`.
+- **404 padronizado**: `GET /produtos/{id}` agora propaga `EntityNotFoundException` retornando corpo ProblemDetail (antes era body vazio).
+
+### Principais classes de teste
+- `ProdutosControllerErrorTest` – validação de payload, precondition (412), sucesso básico.
+- `ProdutosControllerSkuConflictTest` – conflito de SKU (409).
+- `ProdutosControllerNotFoundTest` – 404 ProblemDetail JSON.
+- `ProdutosControllerDeleteTest` – soft delete + 404 em exclusão inexistente.
+- `ProdutosControllerEtagUpdateTest` – ETag correto vs. incorreto em atualizações.
+
+### Builder de dados de teste
+- `support/ProdutoTestData` reduz duplicação na criação de DTOs de produto; gera SKU incremental.
+
+### Executando
+```powershell
+.# Todos os testes
+./mvnw.cmd -q test
+
+# Com relatório surefire (target/surefire-reports)
+Get-ChildItem target/surefire-reports/*.txt | Select-String -Pattern 'Tests run'
+```
+
+### Convenções de asserção
+- Sempre validar: `status`, `content-type` (ProblemDetail), campos essenciais (`status`, `title`, `error`, `type`, `code` quando aplicável).
+- Para validação: verificar presença de `$.errors[*].field`.
+
+### Próximos passos sugeridos
+- Cobrir carrinho (estoque insuficiente, quantidade inválida).
+- Testes de autenticação (login sucesso/falha, rota protegida 401/403).
+- Testes de pedidos (checkout, transição de status, estoque decrementado).
+
+---
 - Prod: ajuste origem no bean `corsConfigurationSource()` (ex.: `https://app.seudominio.com`).
 
 ## Segredos

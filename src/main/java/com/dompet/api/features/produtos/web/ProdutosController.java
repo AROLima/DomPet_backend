@@ -140,17 +140,12 @@ public class ProdutosController {
     @ApiResponse(responseCode = "304", description = "Not Modified (If-None-Match igual ao ETag)")
     @ApiResponse(responseCode = "404", description = "Not Found")
     public ResponseEntity<ProdutosReadDto> buscarProdutoPorId(@PathVariable Long id, @RequestHeader(value = "If-None-Match", required = false) String inm) {
-        try {
-            var dto = service.getById(id);
-            // ETag simples baseado nos campos principais
-            var etag = computeEtag(dto);
-            if (inm != null && inm.equals(etag)) {
-                return ResponseEntity.status(304).eTag(etag).build();
-            }
-            return ResponseEntity.ok().eTag(etag).body(dto);
-        } catch (jakarta.persistence.EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
+        var dto = service.getById(id);
+        var etag = computeEtag(dto);
+        if (inm != null && inm.equals(etag)) {
+            return ResponseEntity.status(304).eTag(etag).build();
         }
+        return ResponseEntity.ok().eTag(etag).body(dto);
     }
 
     // UPDATE (parcial, baseado no método atualizarInformacoes da entidade)
