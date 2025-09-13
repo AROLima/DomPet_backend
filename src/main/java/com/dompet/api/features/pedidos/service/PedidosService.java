@@ -37,7 +37,7 @@ public class PedidosService {
 
   @Transactional
   public PedidoDto checkout(String email, CheckoutRequestDto dto) {
-    var user = usuariosRepo.findByEmail(email).orElseThrow();
+  var user = usuariosRepo.findByEmailIgnoreCase(email).orElseThrow();
     // Obtém carrinho aberto (cria se não existir) para garantir estado consistente
     Carrinho cart = carrinhoService.getOrCreateCart(email);
     if (cart.getItens().isEmpty()) throw new CarrinhoVazioException();

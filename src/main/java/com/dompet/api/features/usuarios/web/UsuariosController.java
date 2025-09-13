@@ -32,7 +32,7 @@ public class UsuariosController {
   public ResponseEntity<UsuariosDto> me(Authentication auth) {
     // Verifica se existe autenticação no contexto
     if (auth == null || auth.getName() == null) return ResponseEntity.status(401).build();
-    var opt = repo.findByEmail(auth.getName());
+  var opt = repo.findByEmailIgnoreCase(auth.getName());
     if (opt.isEmpty()) return ResponseEntity.status(401).build();
     var u = opt.get();
     // Monta DTO para expor campos públicos do usuário (não enviamos senha)
