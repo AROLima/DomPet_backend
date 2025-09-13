@@ -23,7 +23,7 @@ public class PedidoItem {
   @Column(name = "nome_produto", nullable = false)
   private String nomeProduto;
 
-  @Column(name = "preco_unitario", precision = 19, scale = 2, nullable = false)
+  @Column(precision = 19, scale = 2, nullable = false)
   private BigDecimal precoUnitario;
 
   @Column(name = "quantidade", nullable = false)
