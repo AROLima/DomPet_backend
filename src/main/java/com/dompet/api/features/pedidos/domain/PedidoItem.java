@@ -7,6 +7,7 @@ import com.dompet.api.features.produtos.domain.Produtos;
 @Entity
 @Table(name = "item_pedido")
 public class PedidoItem {
+  // touch: forcing rebuild/deploy to ensure table mapping is picked up in production
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
