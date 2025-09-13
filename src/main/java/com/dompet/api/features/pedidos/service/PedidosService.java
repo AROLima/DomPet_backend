@@ -43,7 +43,7 @@ public class PedidosService {
     if (cart.getItens().isEmpty()) throw new CarrinhoVazioException();
     var pedido = new Pedido();
     pedido.setUsuario(user);
-    pedido.setStatus(PedidoStatus.NOVO);
+  pedido.setStatus(PedidoStatus.AGUARDANDO_PAGAMENTO);
     pedido.setObservacoes(dto.observacoes());
     pedido.setEnderecoRua(dto.rua());
     pedido.setEnderecoNumero(dto.numero());

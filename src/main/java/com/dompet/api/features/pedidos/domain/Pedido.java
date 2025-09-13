@@ -21,7 +21,7 @@ public class Pedido {
 
   @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false, length = 20)
-  private PedidoStatus status = PedidoStatus.NOVO;
+  private PedidoStatus status = PedidoStatus.AGUARDANDO_PAGAMENTO;
 
   @Column(name = "total", precision = 19, scale = 2, nullable = false)
   private BigDecimal total = BigDecimal.ZERO;
