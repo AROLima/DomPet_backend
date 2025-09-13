@@ -10,9 +10,11 @@ public final class PedidoMapper {
   private PedidoMapper() {}
 
   public static PedidoItemDto toItemDto(PedidoItem i) {
+    if (i == null) return new PedidoItemDto(null, null, "", java.math.BigDecimal.ZERO, 0, java.math.BigDecimal.ZERO);
+    var prod = i.getProduto();
     return new PedidoItemDto(
       i.getId(),
-      i.getProduto().getId(),
+      prod == null ? null : prod.getId(),
       i.getNomeProduto(),
       i.getPrecoUnitario(),
       i.getQuantidade(),
@@ -21,6 +23,9 @@ public final class PedidoMapper {
   }
 
   public static PedidoDto toDto(Pedido p) {
+    var itens = p.getItens();
+    var itensDto = itens == null ? java.util.List.<PedidoItemDto>of() :
+      itens.stream().map(PedidoMapper::toItemDto).collect(Collectors.toList());
     return new PedidoDto(
       p.getId(),
       p.getStatus(),
@@ -32,7 +37,7 @@ public final class PedidoMapper {
       nz(p.getEnderecoCep()),
       nz(p.getEnderecoCidade()),
       p.getCreatedAt(),
-      p.getItens().stream().map(PedidoMapper::toItemDto).collect(Collectors.toList())
+      itensDto
     );
   }
 

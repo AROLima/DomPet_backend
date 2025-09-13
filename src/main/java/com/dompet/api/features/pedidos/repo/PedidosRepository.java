@@ -7,5 +7,6 @@ import com.dompet.api.features.pedidos.domain.Pedido;
 
 public interface PedidosRepository extends JpaRepository<Pedido, Long> {
   Page<Pedido> findByUsuarioEmailOrderByCreatedAtDesc(String email, Pageable pageable);
+  Page<Pedido> findByUsuarioEmailIgnoreCaseOrderByCreatedAtDesc(String email, Pageable pageable);
 }
 

@@ -89,7 +89,7 @@ public class PedidosService {
 
   @Transactional(readOnly = true)
   public Page<PedidoDto> listForUser(String email, Pageable pageable) {
-    return pedidosRepo.findByUsuarioEmailOrderByCreatedAtDesc(email, pageable).map(PedidoMapper::toDto);
+    return pedidosRepo.findByUsuarioEmailIgnoreCaseOrderByCreatedAtDesc(email, pageable).map(PedidoMapper::toDto);
   }
 
   @Transactional(readOnly = true)
