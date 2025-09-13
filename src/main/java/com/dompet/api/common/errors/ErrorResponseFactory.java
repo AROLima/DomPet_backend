@@ -90,6 +90,8 @@ public final class ErrorResponseFactory {
             Map.entry(CarrinhoNaoEncontradoException.class, baseType() + "/cart-not-found"),
             Map.entry(ProdutoNaoEncontradoException.class, baseType() + "/product-not-found"),
             Map.entry(ForbiddenException.class, baseType() + "/forbidden"),
+        // Canonical mapping for generic JPA entity not found
+        Map.entry(jakarta.persistence.EntityNotFoundException.class, baseType() + "/not-found"),
             Map.entry(NotFoundException.class, baseType() + "/not-found")
     );
 }

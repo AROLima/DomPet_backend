@@ -397,6 +397,86 @@ Coleção pronta (import): `docs/Insomnia_DomPet_API.json`.
   - 403 acesso negado
   - 404 não encontrado
 
+### Contrato Unificado de Erros
+
+Todos os erros são produzidos por `ApiErrors` + `ErrorResponseFactory` seguindo **RFC 7807** com extensões.
+
+Campos sempre presentes:
+- `type` (URL estável categorizando o problema)
+- `title`
+- `status`
+- `error` (espelho de `title` para compatibilidade)
+- `code` (nome simples da exception original)
+- `timestamp` (UTC ISO-8601)
+- `instance` (identificador rand ex: `/errors/<uuid>`)
+- `path` (URI da requisição)
+
+Campos condicionais:
+- `detail` (mensagem específica)
+- `errors` (apenas em validação: lista `{field,message}`)
+
+Base de tipos: `https://api.dompet.local/problem`
+
+| Situação | HTTP | Exception | type |
+|----------|------|-----------|------|
+| Validação body/query | 400 | MethodArgumentNotValidException / ConstraintViolationException | /validation-error |
+| Argumento inválido genérico | 400 | IllegalArgumentException | /illegal-argument-exception |
+| Estoque insuficiente | 409 | InsufficientStockException / EstoqueInsuficienteException | /insufficient-stock |
+| Quantidade inválida carrinho | 400 | AlteracaoQuantidadeInvalidaException | /invalid-quantity-change |
+| Produto não encontrado | 404 | ProdutoNaoEncontradoException | /product-not-found |
+| Carrinho não encontrado | 404 | CarrinhoNaoEncontradoException | /cart-not-found |
+| Entidade JPA genérica não encontrada | 404 | EntityNotFoundException | /not-found |
+| NotFound domínio | 404 | NotFoundException | /not-found |
+| Acesso negado | 403 | ForbiddenException / AccessDeniedException | /forbidden |
+| Integridade (UNIQUE etc.) | 409 | DataIntegrityViolationException | /data-integrity-violation-exception |
+| Erro interno genérico | 500 | Exception | /generic-error |
+
+Não mapeadas: slug derivado do nome simples em kebab-case (ex: `CustomerBlockedException` → `/customer-blocked-exception`).
+
+Exemplo 404:
+```json
+{
+  "type": "https://api.dompet.local/problem/not-found",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Produto id=99999 não encontrado",
+  "error": "Not Found",
+  "code": "EntityNotFoundException",
+  "timestamp": "2024-09-05T12:34:56.789Z",
+  "instance": "/errors/5d8f7e2d-a451-4b8a-b0c0-1b2c0a7ff111",
+  "path": "/produtos/99999"
+}
+```
+
+Exemplo 400 validação:
+```json
+{
+  "type": "https://api.dompet.local/problem/validation-error",
+  "title": "Validation failed",
+  "status": 400,
+  "detail": "Validation failed",
+  "error": "Bad Request",
+  "code": "MethodArgumentNotValidException",
+  "errors": [ { "field": "nome", "message": "must not be blank" } ],
+  "timestamp": "2024-09-05T12:34:56.789Z",
+  "instance": "/errors/ab12cd34-56ef-7890-ab12-cd3456ef7890",
+  "path": "/produtos"
+}
+```
+
+Boas práticas de cliente:
+- Use `type` para lógica (ex: distinguir `validation-error` de `not-found`).
+- Não fixe textos de `detail` para i18n – considere-os mutáveis.
+- Associe `errors[*].field` a inputs do formulário.
+- Registre `instance` em logs de suporte.
+
+Adicionar novo tipo:
+1. Criar exception específica.
+2. Registrar em `TYPE_MAP` de `ErrorResponseFactory` (opcional se derivado for aceitável).
+3. Lançar a exception; handler genérico cuidará.
+4. Documentar na tabela se público.
+
+
 ## CORS
 - Dev: liberado `Authorization` e `Content-Type`, métodos GET/POST/PUT/PATCH/DELETE/OPTIONS e origens `*`.
 
