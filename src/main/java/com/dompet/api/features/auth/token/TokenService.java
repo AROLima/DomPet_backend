@@ -43,8 +43,8 @@ public class TokenService {
    * - `expirationMs` define quanto tempo o token é válido.
    */
   public TokenService(
-      @Value("${app.jwt.secret:}") String secret,
-      @Value("${app.jwt.expiration-ms}") long expirationMs,
+  @Value("${app.jwt.secret:}") String secret,
+  @Value("${app.jwt.expiration-ms:3600000}") long expirationMs,
       UsuariosRepository usuariosRepo) {
 
   /**

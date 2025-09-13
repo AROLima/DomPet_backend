@@ -373,6 +373,18 @@ Observações:
     "metodoPagamento": "CARTAO"
   }
   ```
+  Também é aceito payload FLAT (sem wrapper `enderecoEntrega`) para compatibilidade:
+  ```json
+  {
+    "rua": "Rua A",
+    "numero": "100",
+    "bairro": "Centro",
+    "cep": "01000-000",
+    "cidade": "SP",
+    "observacoes": "Entregar à tarde",
+    "metodoPagamento": "CARTAO"
+  }
+  ```
 - `GET /pedidos` — lista meus pedidos (paginado)
 - `GET /pedidos/{id}` — detalhe (dono ou ADMIN)
 - `PATCH /pedidos/{id}/status` — ADMIN (ex.: `PAGO`, `ENVIADO`, `ENTREGUE`, `CANCELADO`)
@@ -425,6 +437,7 @@ Base de tipos: `https://api.dompet.local/problem`
 | Quantidade inválida carrinho | 400 | AlteracaoQuantidadeInvalidaException | /invalid-quantity-change |
 | Produto não encontrado | 404 | ProdutoNaoEncontradoException | /product-not-found |
 | Carrinho não encontrado | 404 | CarrinhoNaoEncontradoException | /cart-not-found |
+| Carrinho vazio | 400 | CarrinhoVazioException | /cart-empty |
 | Entidade JPA genérica não encontrada | 404 | EntityNotFoundException | /not-found |
 | NotFound domínio | 404 | NotFoundException | /not-found |
 | Acesso negado | 403 | ForbiddenException / AccessDeniedException | /forbidden |

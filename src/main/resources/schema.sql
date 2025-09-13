@@ -1,10 +1,12 @@
--- Token version column for logout-all support
-ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS token_version INT NOT NULL DEFAULT 0;
-ALTER TABLE usuarios ALTER COLUMN token_version SET DEFAULT 0;
-UPDATE usuarios SET token_version = 0 WHERE token_version IS NULL;
+-- (Desabilitado temporariamente) Token version column for logout-all support.
+-- H2 fresh database falha porque a tabela 'usuarios' ainda não existe quando este script roda.
+-- Essas alterações são redundantes se a coluna já estiver mapeada na entidade com default.
+--ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS token_version INT NOT NULL DEFAULT 0;
+--ALTER TABLE usuarios ALTER COLUMN token_version SET DEFAULT 0;
+--UPDATE usuarios SET token_version = 0 WHERE token_version IS NULL;
 
 -- Garantir unicidade de email em usuarios (evita duplicidades que quebram consultas por email)
-ALTER TABLE usuarios ADD CONSTRAINT IF NOT EXISTS uk_usuarios_email UNIQUE (email);
+--ALTER TABLE usuarios ADD CONSTRAINT IF NOT EXISTS uk_usuarios_email UNIQUE (email);
 
 -- Garantir apenas um carrinho ABERTO por usuário (modelo lógico)
 -- Em H2, criamos índice parcial via constraint simulada usando CHECK + índice composto.

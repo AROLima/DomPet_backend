@@ -13,6 +13,7 @@ import com.dompet.api.features.carrinho.errors.AlteracaoQuantidadeInvalidaExcept
 import com.dompet.api.features.carrinho.errors.CarrinhoNaoEncontradoException;
 import com.dompet.api.features.carrinho.errors.EstoqueInsuficienteException;
 import com.dompet.api.features.carrinho.errors.ProdutoNaoEncontradoException;
+import com.dompet.api.features.carrinho.errors.CarrinhoVazioException;
 
 /**
  * Factory central para criar ProblemDetail enriquecido mantendo campos legados
@@ -88,6 +89,7 @@ public final class ErrorResponseFactory {
             Map.entry(EstoqueInsuficienteException.class, baseType() + "/insufficient-stock"),
             Map.entry(AlteracaoQuantidadeInvalidaException.class, baseType() + "/invalid-quantity-change"),
             Map.entry(CarrinhoNaoEncontradoException.class, baseType() + "/cart-not-found"),
+            Map.entry(CarrinhoVazioException.class, baseType() + "/cart-empty"),
             Map.entry(ProdutoNaoEncontradoException.class, baseType() + "/product-not-found"),
             Map.entry(ForbiddenException.class, baseType() + "/forbidden"),
         // Canonical mapping for generic JPA entity not found
