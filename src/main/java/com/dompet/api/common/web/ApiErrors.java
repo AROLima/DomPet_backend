@@ -10,16 +10,16 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import com.dompet.api.features.carrinho.errors.*;
+import com.dompet.api.common.errors.*;
 
 import java.util.List;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.stream.Collectors;
+// removed manual decorate utilities (now in ErrorResponseFactory)
 
 /**
- * Mapeia exceções para respostas ProblemDetail padronizadas (RFC 7807).
- * Inclui validações, 404, 403 e erros específicos do carrinho.
+ * Mapeia exceções para ProblemDetail (RFC 7807) usando {@link ErrorResponseFactory}.
+ * Consolida handlers anteriores (GlobalExceptionHandler deprecado) em um único ponto.
  */
 @RestControllerAdvice
 public class ApiErrors {
@@ -34,101 +34,81 @@ public class ApiErrors {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ProblemDetail handleNotFound(EntityNotFoundException ex, HttpServletRequest req) {
-        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
-        pd.setTitle("Not Found");
-        pd.setDetail(ex.getMessage());
-        decorate(pd, HttpStatus.NOT_FOUND, req, ex);
-        return pd;
+        return ErrorResponseFactory.create(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage(), req, ex);
     }
 
     /** 400 com lista de violações de campo para @Valid em @RequestBody. */
     @ExceptionHandler({ MethodArgumentNotValidException.class })
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex, HttpServletRequest req) {
-        List<FieldViolation> violations = ex.getBindingResult().getFieldErrors()
-                .stream()
-                .map(fe -> new FieldViolation(fe.getField(), resolveMessage(fe)))
-                .collect(Collectors.toList());
-        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("Validation failed");
-        pd.setDetail("One or more fields are invalid");
-        pd.setProperty("errors", violations);
-        decorate(pd, HttpStatus.BAD_REQUEST, req, ex);
-        return pd;
+        List<ErrorResponseFactory.FieldViolation> violations = ex.getBindingResult().getFieldErrors().stream()
+                .map(fe -> new ErrorResponseFactory.FieldViolation(fe.getField(), resolveMessage(fe)))
+                .toList();
+        return ErrorResponseFactory.validation(req, ex, violations, "Validation failed");
     }
 
     /** 400 para violações de constraints em parâmetros (@RequestParam/@PathVariable). */
     @ExceptionHandler(ConstraintViolationException.class)
     public ProblemDetail handleConstraint(ConstraintViolationException ex, HttpServletRequest req) {
-        List<FieldViolation> violations = ex.getConstraintViolations().stream()
-                .map(cv -> new FieldViolation(cv.getPropertyPath().toString(), cv.getMessage()))
-                .collect(Collectors.toList());
-        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("Validation failed");
-        pd.setDetail("One or more constraints were violated");
-        pd.setProperty("errors", violations);
-        decorate(pd, HttpStatus.BAD_REQUEST, req, ex);
-        return pd;
+        List<ErrorResponseFactory.FieldViolation> violations = ex.getConstraintViolations().stream()
+                .map(cv -> new ErrorResponseFactory.FieldViolation(cv.getPropertyPath().toString(), cv.getMessage()))
+                .toList();
+        return ErrorResponseFactory.validation(req, ex, violations, "Validation failed");
     }
 
     /** 400 genérico para argumentos inválidos. */
     @ExceptionHandler(IllegalArgumentException.class)
     public ProblemDetail handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest req) {
-        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("Bad Request");
-        pd.setDetail(ex.getMessage());
-        decorate(pd, HttpStatus.BAD_REQUEST, req, ex);
-        return pd;
+        return ErrorResponseFactory.create(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage(), req, ex);
     }
 
     /** 403 para acesso negado. */
     @ExceptionHandler(AccessDeniedException.class)
     public ProblemDetail handleAccessDenied(AccessDeniedException ex, HttpServletRequest req) {
-        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
-        pd.setTitle("Forbidden");
-        pd.setDetail("You do not have permission to access this resource");
-        decorate(pd, HttpStatus.FORBIDDEN, req, ex);
-        return pd;
-    }
-
-    private String resolveMessage(FieldError fe) {
-        return fe.getDefaultMessage() != null ? fe.getDefaultMessage() : "invalid value";
+        return ErrorResponseFactory.create(HttpStatus.FORBIDDEN, "Forbidden", "You do not have permission to access this resource", req, ex);
     }
 
     // Carrinho-specific exceptions
     @ExceptionHandler({ CarrinhoNaoEncontradoException.class, ProdutoNaoEncontradoException.class })
     public ProblemDetail handleCartNotFound(RuntimeException ex, HttpServletRequest req) {
-        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
-        pd.setTitle("Not Found");
-        pd.setDetail(ex.getMessage());
-        decorate(pd, HttpStatus.NOT_FOUND, req, ex);
-        return pd;
+        return ErrorResponseFactory.create(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage(), req, ex);
     }
 
     /** 400 quando o delta é inválido (<= 0 na criação, negativo sem item, etc.). */
     @ExceptionHandler(AlteracaoQuantidadeInvalidaException.class)
     public ProblemDetail handleInvalidDelta(AlteracaoQuantidadeInvalidaException ex, HttpServletRequest req) {
-        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("Invalid quantity change");
-        pd.setDetail(ex.getMessage());
-        decorate(pd, HttpStatus.BAD_REQUEST, req, ex);
-        return pd;
+        return ErrorResponseFactory.create(HttpStatus.BAD_REQUEST, "Invalid quantity change", ex.getMessage(), req, ex);
     }
 
     /** 409 quando a quantidade solicitada excede o estoque disponível. */
     @ExceptionHandler(EstoqueInsuficienteException.class)
     public ProblemDetail handleStockConflict(EstoqueInsuficienteException ex, HttpServletRequest req) {
-        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-        pd.setTitle("Conflict");
-        pd.setDetail(ex.getMessage());
-        decorate(pd, HttpStatus.CONFLICT, req, ex);
-        return pd;
+        return ErrorResponseFactory.create(HttpStatus.CONFLICT, "Conflict", ex.getMessage(), req, ex);
     }
 
-    private void decorate(ProblemDetail pd, HttpStatus status, HttpServletRequest req, Exception ex) {
-        pd.setProperty("timestamp", OffsetDateTime.now(ZoneOffset.UTC).toString());
-        pd.setProperty("status", status.value());
-        pd.setProperty("error", status.getReasonPhrase());
-        pd.setProperty("path", req != null ? req.getRequestURI() : null);
-        pd.setProperty("code", ex.getClass().getSimpleName());
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ProblemDetail handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest req) {
+        return ErrorResponseFactory.create(HttpStatus.CONFLICT, "Conflict", "Violação de integridade de dados", req, ex);
     }
+
+    @ExceptionHandler({ NotFoundException.class })
+    public ProblemDetail handleGenericNotFound(NotFoundException ex, HttpServletRequest req) {
+        return ErrorResponseFactory.create(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage(), req, ex);
+    }
+
+    @ExceptionHandler({ ForbiddenException.class })
+    public ProblemDetail handleGenericForbidden(ForbiddenException ex, HttpServletRequest req) {
+        return ErrorResponseFactory.create(HttpStatus.FORBIDDEN, "Forbidden", ex.getMessage(), req, ex);
+    }
+
+    @ExceptionHandler({ InsufficientStockException.class })
+    public ProblemDetail handleGenericStock(InsufficientStockException ex, HttpServletRequest req) {
+        return ErrorResponseFactory.create(HttpStatus.CONFLICT, "Conflict", ex.getMessage(), req, ex);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleOther(Exception ex, HttpServletRequest req) {
+        return ErrorResponseFactory.create(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", ex.getMessage(), req, ex);
+    }
+
+    private String resolveMessage(FieldError fe) { return fe.getDefaultMessage() != null ? fe.getDefaultMessage() : "invalid value"; }
 }
