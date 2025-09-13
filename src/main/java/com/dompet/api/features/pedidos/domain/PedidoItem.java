@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import com.dompet.api.features.produtos.domain.Produtos;
 
 @Entity
-@Table(name = "pedido_itens")
+@Table(name = "item_pedido")
 public class PedidoItem {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

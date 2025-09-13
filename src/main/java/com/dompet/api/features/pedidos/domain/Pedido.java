@@ -29,15 +29,15 @@ public class Pedido {
   @Column(name = "observacoes", length = 1000)
   private String observacoes;
 
-  @Column(name = "endereco_rua")
+  @Column(name = "rua")
   private String enderecoRua;
-  @Column(name = "endereco_numero")
+  @Column(name = "numero")
   private String enderecoNumero;
-  @Column(name = "endereco_bairro")
+  @Column(name = "bairro")
   private String enderecoBairro;
-  @Column(name = "endereco_cep")
+  @Column(name = "cep")
   private String enderecoCep;
-  @Column(name = "endereco_cidade")
+  @Column(name = "cidade")
   private String enderecoCidade;
 
   private OffsetDateTime createdAt = OffsetDateTime.now();
