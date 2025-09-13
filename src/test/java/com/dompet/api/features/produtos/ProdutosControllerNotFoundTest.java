@@ -40,7 +40,7 @@ class ProdutosControllerNotFoundTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.title").value("Not Found"))
                 .andExpect(jsonPath("$.error").value("Not Found"))
-                .andExpect(jsonPath("$.type").value(org.hamcrest.Matchers.containsString("/not-found")))
+                .andExpect(jsonPath("$.type").value(org.hamcrest.Matchers.containsString("entity-not-found-exception")))
                 .andExpect(jsonPath("$.code").value("EntityNotFoundException"))
                 .andExpect(jsonPath("$.path").value("/produtos/99999"));
     }

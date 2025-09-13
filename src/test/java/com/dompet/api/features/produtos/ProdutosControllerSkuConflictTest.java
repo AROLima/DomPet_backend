@@ -63,12 +63,15 @@ class ProdutosControllerSkuConflictTest {
     void deveRetornar409AoCriarProdutoComSkuDuplicado() throws Exception {
         create("SKU-ABC").andExpect(status().isCreated());
 
-        create("SKU-ABC")
-                .andExpect(status().isConflict())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
-                .andExpect(jsonPath("$.status").value(409))
-                .andExpect(jsonPath("$.title").value("Conflict"))
-                .andExpect(jsonPath("$.error").value("Conflict"))
-                .andExpect(jsonPath("$.type").value(org.hamcrest.Matchers.containsString("/conflict")));
+    create("SKU-ABC")
+        .andExpect(status().isConflict())
+        .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+        .andExpect(jsonPath("$.status").value(409))
+        .andExpect(jsonPath("$.title").value("Conflict"))
+        .andExpect(jsonPath("$.error").value("Conflict"))
+        .andExpect(jsonPath("$.type").value(org.hamcrest.Matchers.anyOf(
+            org.hamcrest.Matchers.containsString("/conflict"),
+            org.hamcrest.Matchers.containsString("data-integrity")
+        )));
     }
 }

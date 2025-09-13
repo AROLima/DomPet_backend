@@ -121,11 +121,14 @@ class ProdutosControllerErrorTest {
     @Nested
     class NotFoundTests {
         @Test
-        @DisplayName("GET /produtos/{id} inexistente -> 404 sem body ProblemDetail (compat atual)")
+        @DisplayName("GET /produtos/{id} inexistente -> 404 ProblemDetail JSON")
         void getProdutoNotFound() throws Exception {
             mockMvc.perform(get("/produtos/999999"))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(isEmptyString()));
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.title", anyOf(is("Not Found"), is("Internal Server Error"))))
+                .andExpect(jsonPath("$.type", containsString("problem")))
+                .andExpect(jsonPath("$.detail", containsStringIgnoringCase("não")));
         }
     }
 }

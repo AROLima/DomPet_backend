@@ -34,7 +34,8 @@ class ProdutosControllerEtagUpdateTest {
     }
 
     private long createOne() throws Exception {
-        var dto = new Create("ETag Test", null, new BigDecimal("15.00"), 3, null, "RACAO", true, "SKU-ETAG-1");
+        String dynamicSku = "SKU-ETAG-" + java.util.UUID.randomUUID();
+        var dto = new Create("ETag Test", null, new BigDecimal("15.00"), 3, null, "RACAO", true, dynamicSku);
         var res = mvc.perform(post("/produtos")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(dto))
@@ -56,7 +57,7 @@ class ProdutosControllerEtagUpdateTest {
     void deveAtualizarComIfMatchCorreto() throws Exception {
         long id = createOne();
         String etag = getEtag(id);
-        var upd = new Update("ETag Test 2", null, new BigDecimal("20.00"), 4, null, true, "RACAO", "SKU-ETAG-1");
+    var upd = new Update("ETag Test 2", null, new BigDecimal("20.00"), 4, null, true, "RACAO", null);
         mvc.perform(put("/produtos/" + id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("If-Match", etag)
@@ -72,7 +73,7 @@ class ProdutosControllerEtagUpdateTest {
     void deveRetornar412ComIfMatchIncorreto() throws Exception {
         long id = createOne();
         String etag = getEtag(id);
-        var upd = new Update("ETag Test Fail", null, new BigDecimal("30.00"), 10, null, true, "RACAO", "SKU-ETAG-1");
+    var upd = new Update("ETag Test Fail", null, new BigDecimal("30.00"), 10, null, true, "RACAO", null);
         mvc.perform(put("/produtos/" + id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("If-Match", etag + "-outdated")

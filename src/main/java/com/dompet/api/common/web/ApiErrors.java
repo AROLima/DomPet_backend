@@ -6,6 +6,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.core.annotation.Order;
+import org.springframework.core.Ordered;
 import jakarta.servlet.http.HttpServletRequest;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -22,6 +24,7 @@ import java.util.List;
  * Consolida handlers anteriores (GlobalExceptionHandler deprecado) em um único ponto.
  */
 @RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class ApiErrors {
     /** Estrutura para representar violações de campos em validações. */
     record FieldViolation(String field, String message) {}
@@ -34,7 +37,13 @@ public class ApiErrors {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ProblemDetail handleNotFound(EntityNotFoundException ex, HttpServletRequest req) {
-        return ErrorResponseFactory.create(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage(), req, ex);
+        // Força status 404 mesmo quando outra infra tenta transformar a exceção em 500
+        ProblemDetail pd = ErrorResponseFactory.create(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage(), req, ex);
+        // Garantir coerência caso algum decorator tenha sobrescrito
+        if (pd.getStatus() != HttpStatus.NOT_FOUND.value()) {
+            pd.setProperty("status", HttpStatus.NOT_FOUND.value());
+        }
+        return pd;
     }
 
     /** 400 com lista de violações de campo para @Valid em @RequestBody. */
