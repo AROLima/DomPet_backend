@@ -6,6 +6,7 @@ package com.dompet.api.features.carrinho.service;
 import com.dompet.api.common.errors.*;
 import com.dompet.api.features.carrinho.domain.*;
 import com.dompet.api.features.carrinho.dto.*;
+import com.dompet.api.features.carrinho.mapper.CartMapper;
 import com.dompet.api.features.carrinho.repo.CarrinhoRepository;
 import com.dompet.api.features.carrinho.repo.ItemCarrinhoRepository;
 import com.dompet.api.features.produtos.domain.Produtos;
@@ -15,7 +16,7 @@ import com.dompet.api.features.carrinho.errors.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.stream.Collectors;
+// import java.util.stream.Collectors; // modernizing toList usage; collector no longer needed
 
 /**
  * Regras de negócio do Carrinho.
@@ -60,28 +61,21 @@ public class CarrinhoService {
     public CartResponseDto getCart(String email) {
     var cart = carrinhoRepo.findFirstByUsuarioEmailAndStatusOrderByUpdatedAtDesc(email, CartStatus.ABERTO)
         .orElseGet(() -> getOrCreateCart(email));
-        var items = cart.getItens().stream().map(i -> new CartResponseDto.ItemDto(
-                i.getId(),
-                i.getProduto().getId(),
-                i.getProduto().getNome(),
-                i.getProduto().getPreco(),
-                i.getQuantidade(),
-                i.getSubtotal()
-        )).collect(Collectors.toList());
-        return new CartResponseDto(cart.getId(), items, cart.getTotal());
+    return CartMapper.toCartResponseDto(cart);
     }
 
     /** Adiciona item ao carrinho, mesclando com existente e limitando ao estoque. */
     @Transactional
     public CartResponseDto addItem(String email, Long produtoId, Integer quantidade) {
         // valida quantidade de entrada
-        if (quantidade == null || quantidade < 1) throw new IllegalArgumentException("Quantidade deve ser >= 1");
+        if (quantidade == null || quantidade < 1)
+            throw new AlteracaoQuantidadeInvalidaException("Quantidade deve ser >= 1");
         var cart = getOrCreateCart(email);
         Produtos produto = produtosRepo.findById(produtoId)
                 .orElseThrow(() -> new NotFoundException("Produto não encontrado"));
         // evita adicionar produtos marcados como inativos
-        if (Boolean.FALSE.equals(produto.getAtivo()))
-            throw new IllegalArgumentException("Produto inativo");
+        if (Boolean.FALSE.equals(produto.getAtivo())) 
+            throw new ProdutoNaoEncontradoException("Produto inativo");
         if (produto.getEstoque() == null || produto.getEstoque() < 1)
             throw new InsufficientStockException("Sem estoque", java.util.List.of(produto.getNome()));
         // merge item: se já existir, soma e limita ao estoque; caso contrário adiciona novo
@@ -110,13 +104,15 @@ public class CarrinhoService {
                 .orElseThrow(() -> new NotFoundException("Item não encontrado no seu carrinho"));
         if (!cart.getUsuario().getEmail().equals(email))
             throw new ForbiddenException("Carrinho de outro usuário");
-        if (quantidade == null || quantidade < 0) throw new IllegalArgumentException("Quantidade inválida");
+        if (quantidade == null || quantidade < 0)
+            throw new AlteracaoQuantidadeInvalidaException("Quantidade inválida");
         if (quantidade == 0) {
             cart.getItens().remove(item);
             itemRepo.deleteById(itemId);
         } else {
             var produto = item.getProduto();
-            if (Boolean.FALSE.equals(produto.getAtivo())) throw new IllegalArgumentException("Produto inativo");
+            if (Boolean.FALSE.equals(produto.getAtivo())) 
+                throw new ProdutoNaoEncontradoException("Produto inativo");
             if (quantidade > produto.getEstoque()) throw new InsufficientStockException("Estoque insuficiente",
                     java.util.List.of(produto.getNome()));
             item.setQuantidade(quantidade);
@@ -192,18 +188,6 @@ public class CarrinhoService {
     carrinhoRepo.save(carrinho);
 
     // Mapeia carrinho para DTO de resposta
-        var itensDto = carrinho.getItens().stream().map(i -> new com.dompet.api.features.carrinho.dto.ItemCarrinhoDto(
-                i.getProduto().getId(),
-                i.getProduto().getNome(),
-                i.getProduto().getPreco(),
-                i.getQuantidade(),
-                i.getSubtotal()
-        )).collect(java.util.stream.Collectors.toList());
-
-        return new com.dompet.api.features.carrinho.dto.CarrinhoDto(
-                carrinho.getId(),
-                itensDto,
-                carrinho.getTotal()
-        );
+    return CartMapper.toCarrinhoDto(carrinho);
     }
 }

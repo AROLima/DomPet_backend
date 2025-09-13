@@ -5,6 +5,7 @@ package com.dompet.api.features.carrinho.domain;
 
 import com.dompet.api.features.usuarios.domain.Usuarios;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -26,9 +27,11 @@ public class Carrinho {
     private Long id;
 
     @ManyToOne(optional = false)
+    @NotNull(message = "usuario obrigatorio")
     private Usuarios usuario;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "status obrigatorio")
     private CartStatus status = CartStatus.ABERTO;
 
     @OneToMany(mappedBy = "carrinho", cascade = CascadeType.ALL, orphanRemoval = true)

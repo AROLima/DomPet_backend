@@ -4,6 +4,7 @@ import com.dompet.api.shared.endereco.Endereco;
 import com.dompet.api.features.usuarios.dto.UsuariosDto;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 /**
@@ -27,12 +28,23 @@ public class Usuarios {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "nome obrigatorio")
+    @Size(max = 255, message = "nome max 255")
     private String nome;
+
+    @NotBlank(message = "email obrigatorio")
+    @Email(message = "email invalido")
+    @Size(max = 255, message = "email max 255")
     private String email;
+
+    @NotBlank(message = "senha obrigatoria")
     private String senha;
+
+    @NotNull(message = "ativo obrigatorio")
     private Boolean ativo = true;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "role obrigatoria")
     private Role role;
 
     @Embedded
@@ -40,6 +52,8 @@ public class Usuarios {
 
     // Versão de token: incrementa em logout-all; comparada com claim "ver" no JWT
     @Column(name = "token_version", nullable = false)
+    @NotNull(message = "tokenVersion obrigatorio")
+    @PositiveOrZero(message = "tokenVersion >= 0")
     private Integer tokenVersion = 0;
 
     public Usuarios(UsuariosDto data){

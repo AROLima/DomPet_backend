@@ -3,6 +3,7 @@ import java.math.BigDecimal;
 import com.dompet.api.features.produtos.dto.ProdutosDto;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 /**
@@ -27,15 +28,24 @@ public class Produtos {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Nome de exibição do produto
+    @NotBlank(message = "nome obrigatorio")
+    @Size(max = 255, message = "nome max 255")
     private String nome;
 
     // Removido @Lob para alinhar com coluna TEXT existente e evitar exigência de CLOB
+    // Descrição longa opcional
+    @Size(max = 4000, message = "descricao max 4000")
     private String descricao;
 
     @Column(precision = 12, scale = 2, nullable = false)
+    @NotNull(message = "preco obrigatorio")
+    @DecimalMin(value = "0.00", inclusive = false, message = "preco deve ser > 0")
     private BigDecimal preco;
 
     @Column(nullable = false)
+    @NotNull(message = "estoque obrigatorio")
+    @PositiveOrZero(message = "estoque >= 0")
     private Integer estoque;
     private String imagemUrl;
 
@@ -43,8 +53,10 @@ public class Produtos {
     private Categorias categoria;
 
     @Column(unique = true)
+    @Size(max = 120, message = "sku max 120")
     private String sku;
 
+    @NotNull(message = "ativo obrigatorio")
     private Boolean ativo = true;
 
     // Construtor prático a partir de um DTO básico

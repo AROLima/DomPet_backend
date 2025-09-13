@@ -20,8 +20,10 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Endpoints de carrinho com ajuste de quantidade por delta.
  * Útil para incrementos/decrementos transacionais com validação de estoque.
+ * @deprecated Use os endpoints de {@link CartController} em /cart. Este conjunto será removido após período de transição.
  */
 @RestController
+@Deprecated // Preferir /cart endpoints; será removido futuramente.
 @RequestMapping("/carrinho")
 @Tag(name = "Carrinho", description = "Operações do carrinho")
 @Validated

@@ -5,6 +5,7 @@ package com.dompet.api.features.carrinho.domain;
 
 import com.dompet.api.features.produtos.domain.Produtos;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -19,12 +20,16 @@ public class ItemCarrinho {
     private Long id;
 
     @ManyToOne(optional = false)
+    @NotNull(message = "carrinho obrigatorio")
     private Carrinho carrinho;
 
     @ManyToOne(optional = false)
+    @NotNull(message = "produto obrigatorio")
     private Produtos produto;
 
     @Column(nullable = false)
+    @NotNull(message = "quantidade obrigatoria")
+    @Positive(message = "quantidade > 0")
     private Integer quantidade;
 
     /** preço unitário x quantidade, arredondado para 2 casas. */
