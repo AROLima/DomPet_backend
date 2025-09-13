@@ -57,4 +57,18 @@ public class Carrinho {
                 .reduce(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP), BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
     }
+
+    // Igualdade baseada em id; entidades transient (id null) não são consideradas iguais
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Carrinho carrinho = (Carrinho) o;
+        return id != null && id.equals(carrinho.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : System.identityHashCode(this);
+    }
 }

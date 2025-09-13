@@ -72,5 +72,17 @@ public class Usuarios {
 
     // Nota: armazenar tokenVersion no usuario evita necessidade de tabela de blacklist e
     // traz uma implementação simples para invalidar tokens antigos.
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Usuarios that = (Usuarios) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : System.identityHashCode(this);
+    }
  }
 

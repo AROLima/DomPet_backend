@@ -87,4 +87,18 @@ public class Produtos {
     // helpers de status
     public void excluir()   { this.ativo = false; }
     public void restaurar() { this.ativo = true;  }
+
+    // Igualdade baseada apenas no id para evitar carregar relações e manter consistência JPA
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Produtos that = (Produtos) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : System.identityHashCode(this);
+    }
 }
